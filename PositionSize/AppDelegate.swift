@@ -11,11 +11,18 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
                             
-    var window: UIWindow?
-
+    var window: UIWindow!
+    var mainViewController: MainViewController!
 
     func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
-        // Override point for customization after application launch.
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        //window.tintColor = UIColor.darkGrayColor()
+
+        mainViewController = MainViewController()
+
+        window.rootViewController = mainViewController
+
+        window.makeKeyAndVisible()
         return true
     }
 
