@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, ActionViewDelegate {
 
     var settingsButton: UIButton!
     var accountSizeTitleLabel: UILabel!
@@ -16,7 +16,9 @@ class MainViewController: UIViewController {
     var segmentedControl: UISegmentedControl!
     var investorHeader: StrikeHeaderView!
     var actionView: ActionView!
+    var summaryView: SummaryView!
 
+    var currentTradingStyleIndex: Int!
 
     override func loadView() {
         self.view = UIView(frame: UIScreen.mainScreen().bounds)
@@ -25,6 +27,8 @@ class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        currentTradingStyleIndex = AppConfig.indexForCurrentTraderProfile()
 
         settingsButton = UIButton.buttonWithType(.System) as UIButton!
         settingsButton.setImage(UIImage(named: "settings"), forState: .Normal)
@@ -36,7 +40,7 @@ class MainViewController: UIViewController {
         accountSizeTitleLabel = UILabel(frame: CGRectZero)
         accountSizeTitleLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         accountSizeTitleLabel.font = UIFont.systemFontOfSize(12.0)
-        accountSizeTitleLabel.textColor = UIColor.grayColor()
+        accountSizeTitleLabel.textColor = Color.text
         accountSizeTitleLabel.backgroundColor = UIColor.clearColor()
         accountSizeTitleLabel.textAlignment = .Left
 
@@ -58,7 +62,7 @@ class MainViewController: UIViewController {
 
         let lineView = UIView(frame: CGRectZero)
         lineView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        lineView.backgroundColor = UIColor.lightGrayColor()
+        lineView.backgroundColor = Color.border
 
         lineView.autoSetDimension(.Height, toSize: 0.5)
 
@@ -69,48 +73,68 @@ class MainViewController: UIViewController {
         segmentedControl.setWidth(95.0, forSegmentAtIndex: 1)
         segmentedControl.setWidth(95.0, forSegmentAtIndex: 2)
 
+        segmentedControl.addTarget(self, action: "segmentedControlChanged:", forControlEvents: .ValueChanged)
+
         self.view.addSubview(segmentedControl)
 
         investorHeader = StrikeHeaderView(frame: CGRectZero)
         investorHeader.setTranslatesAutoresizingMaskIntoConstraints(false)
 
-        investorHeader.setText("SELECT YOUR INVESTMENT TYPE")
+        investorHeader.setText("SELECT YOUR TRADING STYLE")
 
         self.view.addSubview(investorHeader)
 
         actionView = ActionView(frame: CGRectZero)
         actionView.setTranslatesAutoresizingMaskIntoConstraints(false)
-
-        actionView.autoSetDimension(.Height, toSize: ActionView.Properties.height)
+        actionView.delegate = self
 
         self.view.addSubview(actionView)
+
+        summaryView = SummaryView(frame: CGRectZero)
+        summaryView.setTranslatesAutoresizingMaskIntoConstraints(false)
+
+        self.view.addSubview(summaryView)
+
+        let actionHeight = ceil(self.view.bounds.height * 0.34)
+
+        self.summaryView .autoSetDimension(ALDimension.Height, toSize: 120.0)
 
         // AutoLayout
 
         settingsButton.autoPinToTopLayoutGuideOfViewController(self, withInset: 15.0)
         settingsButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
-        accountSizeTitleLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 15.0)
-        accountSizeTitleLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 10.0)
+        accountSizeTitleLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 10.0)
+        accountSizeTitleLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
 
-        accountSizeButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: accountSizeTitleLabel, withOffset: 10.0)
+        accountSizeButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: accountSizeTitleLabel, withOffset: 8.0)
         accountSizeButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 20.0)
         accountSizeButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 20.0)
 
-        lineView.autoPinEdge(.Top, toEdge: .Bottom, ofView: accountSizeButton, withOffset: 15.0)
+        lineView.autoPinEdge(.Top, toEdge: .Bottom, ofView: accountSizeButton, withOffset: 5.0)
         lineView.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
         lineView.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-        segmentedControl.autoPinEdge(.Top, toEdge: .Bottom, ofView: lineView, withOffset: 15.0)
+        segmentedControl.autoPinEdge(.Top, toEdge: .Bottom, ofView: lineView, withOffset: 12.0)
         segmentedControl.autoAlignAxisToSuperviewAxis(.Vertical)
 
-        investorHeader.autoPinEdge(.Top, toEdge: .Bottom, ofView: segmentedControl, withOffset: 15.0)
+        investorHeader.autoPinEdge(.Top, toEdge: .Bottom, ofView: segmentedControl, withOffset: 12.0)
         investorHeader.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         investorHeader.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         actionView.autoPinEdge(.Top, toEdge: .Bottom, ofView: investorHeader, withOffset: 15.0)
+        actionView.autoPinEdge(.Bottom, toEdge: .Top, ofView: summaryView, withOffset: -15.0)
         actionView.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         actionView.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
+
+        summaryView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
+
+        summaryView.setStatus(.None)
+
+        // Setup Default Values
+
+        segmentedControl.selectedSegmentIndex = currentTradingStyleIndex
+        segmentedControlChanged(segmentedControl)
     }
 
     override func didReceiveMemoryWarning() {
@@ -129,5 +153,32 @@ class MainViewController: UIViewController {
 
     func accountSizeAction(sender: AnyObject!) {
 
+    }
+
+    func segmentedControlChanged(segmentedControl: UISegmentedControl!) {
+        currentTradingStyleIndex = segmentedControl.selectedSegmentIndex
+
+        var riskStr: String
+        var sizeStr: String
+
+        if currentTradingStyleIndex == 0 {
+            riskStr = "2%"
+            sizeStr = "20%"
+        } else if currentTradingStyleIndex == 1 {
+            riskStr = "1.5%"
+            sizeStr = "15%"
+        } else {
+            riskStr = "1%"
+            sizeStr = "10%"
+        }
+
+        actionView.setRiskText(riskStr)
+        actionView.setMaximumSizeText(sizeStr)
+    }
+
+    // MARK: - ActionViewDelegate Methods
+
+    func actionView(actionView: ActionView, didSelectButtonType buttonType: ActionViewButtonType) {
+        println("button selected: \(buttonType.toRaw())")
     }
 }

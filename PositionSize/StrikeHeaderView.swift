@@ -14,35 +14,35 @@ class StrikeHeaderView: UIView {
     private let leftLine: UIView!
     private let rightLine: UIView!
 
-    required init(coder aDecoder: NSCoder!) {
-        super.init(coder: aDecoder)
-    }
-
     override required init(frame: CGRect) {
         super.init(frame: frame)
 
         textLabel = UILabel(frame: CGRectZero)
         textLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         textLabel.backgroundColor = UIColor.clearColor()
-        textLabel.textColor = UIColor.grayColor()
+        textLabel.textColor = Color.text
         textLabel.font = UIFont.systemFontOfSize(12.0)
         textLabel.textAlignment = .Center
 
         self.addSubview(textLabel)
 
         leftLine = UIView(frame: CGRectZero)
-        leftLine.backgroundColor = UIColor.lightGrayColor()
+        leftLine.backgroundColor = Color.border
 
         leftLine.autoSetDimension(.Height, toSize: 0.5)
 
         self.addSubview(leftLine)
 
         rightLine = UIView(frame: CGRectZero)
-        rightLine.backgroundColor = UIColor.lightGrayColor()
+        rightLine.backgroundColor = Color.border
 
         rightLine.autoSetDimension(.Height, toSize: 0.5)
 
         self.addSubview(rightLine)
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func updateConstraints() {

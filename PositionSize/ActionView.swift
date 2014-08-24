@@ -8,11 +8,22 @@
 
 import UIKit
 
-class ActionView: UIView {
+enum ActionViewButtonType: Int {
+    case Risk = 1, PositionSize, Entry, Stop
+}
 
-    struct Properties {
-        static let height: CGFloat = 200.0
+protocol ActionViewDelegate {
+    func actionView(actionView: ActionView, didSelectButtonType buttonType: ActionViewButtonType)
+}
+
+class ActionView: UIView {
+    struct Config {
+        static let buttonHeight: CGFloat = 32.0
+        static let verticalLinePadding: CGFloat = 20.0
+        static let verticalTextPadding: CGFloat = 10.0
     }
+
+    var delegate: ActionViewDelegate?
 
     let horizontalLine: UIView!
     let verticalLine: UIView!
@@ -34,10 +45,6 @@ class ActionView: UIView {
     private let entryContainerView: UIView!
     private let stopContainerView: UIView!
 
-    required init(coder aDecoder: NSCoder!) {
-        super.init(coder: aDecoder)
-    }
-
     override required init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -45,7 +52,7 @@ class ActionView: UIView {
 
         horizontalLine = UIView(frame: CGRectZero)
         horizontalLine.setTranslatesAutoresizingMaskIntoConstraints(false)
-        horizontalLine.backgroundColor = UIColor.lightGrayColor()
+        horizontalLine.backgroundColor = Color.border
 
         horizontalLine.autoSetDimension(.Height, toSize: 0.5)
 
@@ -53,7 +60,7 @@ class ActionView: UIView {
 
         verticalLine = UIView(frame: CGRectZero)
         verticalLine.setTranslatesAutoresizingMaskIntoConstraints(false)
-        verticalLine.backgroundColor = UIColor.lightGrayColor()
+        verticalLine.backgroundColor = Color.border
 
         verticalLine.autoSetDimension(.Width, toSize: 0.5)
 
@@ -68,6 +75,9 @@ class ActionView: UIView {
         self.addSubview(riskContainerView)
 
         riskButton = ActionView.actionButton()
+        riskButton.tag = ActionViewButtonType.Risk.toRaw()
+
+        riskButton.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
         riskContainerView.addSubview(riskButton)
 
@@ -85,6 +95,9 @@ class ActionView: UIView {
         self.addSubview(sizeContainerView)
 
         sizeButton = ActionView.actionButton()
+        sizeButton.tag = ActionViewButtonType.PositionSize.toRaw()
+
+        sizeButton.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
         sizeContainerView.addSubview(sizeButton)
 
@@ -102,6 +115,9 @@ class ActionView: UIView {
         self.addSubview(entryContainerView)
 
         entryButton = ActionView.actionButton()
+        entryButton.tag = ActionViewButtonType.Entry.toRaw()
+
+        entryButton.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
         entryContainerView.addSubview(entryButton)
 
@@ -119,6 +135,9 @@ class ActionView: UIView {
         self.addSubview(stopContainerView)
 
         stopButton = ActionView.actionButton()
+        stopButton.tag = ActionViewButtonType.Stop.toRaw()
+
+        stopButton.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
         stopContainerView.addSubview(stopButton)
 
@@ -126,6 +145,10 @@ class ActionView: UIView {
         stopLabel.text = "Stop Loss Price"
 
         stopContainerView.addSubview(stopLabel)
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func updateConstraints() {
@@ -139,78 +162,133 @@ class ActionView: UIView {
 
         // Risk Percent
 
-        riskContainerView.autoPinEdgeToSuperviewEdge(.Top, withInset: 5.0)
-        riskContainerView.autoPinEdge(.Left, toEdge: .Left, ofView: horizontalLine, withOffset: 5.0)
-        riskContainerView.autoPinEdge(.Right, toEdge: .Left, ofView: verticalLine, withOffset: -5.0)
-        riskContainerView.autoPinEdge(.Bottom, toEdge: .Top, ofView: horizontalLine, withOffset: -5.0)
+        riskContainerView.autoPinEdgeToSuperviewEdge(.Top, withInset: 0.0)
+        riskContainerView.autoPinEdge(.Left, toEdge: .Left, ofView: horizontalLine, withOffset: 0.0)
+        riskContainerView.autoPinEdge(.Right, toEdge: .Left, ofView: verticalLine, withOffset: 0.0)
+        riskContainerView.autoPinEdge(.Bottom, toEdge: .Top, ofView: horizontalLine, withOffset: 0.0)
 
-        riskLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 15.0)
+        riskLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: Config.verticalLinePadding)
         riskLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
         riskLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-        riskButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: riskLabel, withOffset: 0.0)
+        riskButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: riskLabel, withOffset: -Config.verticalTextPadding)
         riskButton.autoPinEdge(.Left, toEdge: .Left, ofView: riskLabel)
         riskButton.autoPinEdge(.Right, toEdge: .Right, ofView: riskLabel)
 
+        riskButton.autoSetDimension(.Height, toSize: Config.buttonHeight)
+
         // Maximum Position Size
 
-        sizeContainerView.autoPinEdgeToSuperviewEdge(.Top, withInset: 5.0)
-        sizeContainerView.autoPinEdge(.Left, toEdge: .Right, ofView: verticalLine, withOffset: 5.0)
-        sizeContainerView.autoPinEdge(.Right, toEdge: .Right, ofView: horizontalLine, withOffset: -5.0)
-        sizeContainerView.autoPinEdge(.Bottom, toEdge: .Top, ofView: horizontalLine, withOffset: -5.0)
+        sizeContainerView.autoPinEdgeToSuperviewEdge(.Top, withInset: 0.0)
+        sizeContainerView.autoPinEdge(.Left, toEdge: .Right, ofView: verticalLine, withOffset: 0.0)
+        sizeContainerView.autoPinEdge(.Right, toEdge: .Right, ofView: horizontalLine, withOffset: 0.0)
+        sizeContainerView.autoPinEdge(.Bottom, toEdge: .Top, ofView: horizontalLine, withOffset: 0.0)
 
-        sizeLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 15.0)
+        sizeLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: Config.verticalLinePadding)
         sizeLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
         sizeLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-        sizeButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: sizeLabel, withOffset: 0.0)
+        sizeButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: sizeLabel, withOffset: -Config.verticalTextPadding)
         sizeButton.autoPinEdge(.Left, toEdge: .Left, ofView: sizeLabel)
         sizeButton.autoPinEdge(.Right, toEdge: .Right, ofView: sizeLabel)
 
+        sizeButton.autoSetDimension(.Height, toSize: Config.buttonHeight)
+
         // Entry Price
 
-        entryContainerView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 5.0)
-        entryContainerView.autoPinEdge(.Left, toEdge: .Left, ofView: horizontalLine, withOffset: 5.0)
-        entryContainerView.autoPinEdge(.Right, toEdge: .Left, ofView: verticalLine, withOffset: -5.0)
-        entryContainerView.autoPinEdge(.Top, toEdge: .Bottom, ofView: horizontalLine, withOffset: 5.0)
+        entryContainerView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 0.0)
+        entryContainerView.autoPinEdge(.Left, toEdge: .Left, ofView: horizontalLine, withOffset: 0.0)
+        entryContainerView.autoPinEdge(.Right, toEdge: .Left, ofView: verticalLine, withOffset: 0.0)
+        entryContainerView.autoPinEdge(.Top, toEdge: .Bottom, ofView: horizontalLine, withOffset: 0.0)
 
-        entryLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 15.0)
-        entryLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
-        entryLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
+        entryButton.autoPinEdgeToSuperviewEdge(.Top, withInset: Config.verticalLinePadding)
+        entryButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
+        entryButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-        entryButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: entryLabel, withOffset: 0.0)
-        entryButton.autoPinEdge(.Left, toEdge: .Left, ofView: entryLabel)
-        entryButton.autoPinEdge(.Right, toEdge: .Right, ofView: entryLabel)
+        entryButton.autoSetDimension(.Height, toSize: Config.buttonHeight)
+
+        entryLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: entryButton, withOffset: Config.verticalTextPadding)
+        entryLabel.autoPinEdge(.Left, toEdge: .Left, ofView: entryButton)
+        entryLabel.autoPinEdge(.Right, toEdge: .Right, ofView: entryButton)
 
         // Stop Loss Price
 
-        stopContainerView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 5.0)
-        stopContainerView.autoPinEdge(.Left, toEdge: .Right, ofView: verticalLine, withOffset: 5.0)
-        stopContainerView.autoPinEdge(.Right, toEdge: .Right, ofView: horizontalLine, withOffset: -5.0)
-        stopContainerView.autoPinEdge(.Top, toEdge: .Bottom, ofView: horizontalLine, withOffset: 5.0)
+        stopContainerView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 0.0)
+        stopContainerView.autoPinEdge(.Left, toEdge: .Right, ofView: verticalLine, withOffset: 0.0)
+        stopContainerView.autoPinEdge(.Right, toEdge: .Right, ofView: horizontalLine, withOffset: 0.0)
+        stopContainerView.autoPinEdge(.Top, toEdge: .Bottom, ofView: horizontalLine, withOffset: 0.0)
 
-        stopLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 15.0)
-        stopLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
-        stopLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
+        stopButton.autoPinEdgeToSuperviewEdge(.Top, withInset: Config.verticalLinePadding)
+        stopButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
+        stopButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-        stopButton.autoPinEdge(.Bottom, toEdge: .Top, ofView: stopLabel, withOffset: 0.0)
-        stopButton.autoPinEdge(.Left, toEdge: .Left, ofView: stopLabel)
-        stopButton.autoPinEdge(.Right, toEdge: .Right, ofView: stopLabel)
+        stopButton.autoSetDimension(.Height, toSize: Config.buttonHeight)
+
+        stopLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: stopButton, withOffset: Config.verticalTextPadding)
+        stopLabel.autoPinEdge(.Left, toEdge: .Left, ofView: stopButton)
+        stopLabel.autoPinEdge(.Right, toEdge: .Right, ofView: stopButton)
 
         super.updateConstraints()
     }
 
-    override func intrinsicContentSize() -> CGSize {
-        return CGSizeMake(UIViewNoIntrinsicMetric, Properties.height)
+    // MARK: Public Methods
+
+    func setRiskText(text: NSString!) {
+        var title: String = "Select"
+
+        if let string = text {
+            title = string
+        }
+
+        riskButton.setTitle(title, forState: .Normal)
     }
+
+    func setMaximumSizeText(text: NSString!) {
+        var title: String = "Select"
+
+        if let string = text {
+            title = string
+        }
+
+        sizeButton.setTitle(title, forState: .Normal)
+    }
+
+    func setEntryPriceText(text: NSString!) {
+        var title: String = "Select"
+
+        if let string = text {
+            title = string
+        }
+
+        entryButton.setTitle(title, forState: .Normal)
+    }
+
+    func setStopPriceText(text: NSString!) {
+        var title: String = "Select"
+
+        if let string = text {
+            title = string
+        }
+
+        stopButton.setTitle(title, forState: .Normal)
+    }
+
+    // MARK: Selector Methods
+
+    func selectAction(sender: AnyObject!) {
+        let buttonType: ActionViewButtonType! = ActionViewButtonType.fromRaw(sender.tag)!
+        delegate?.actionView(self, didSelectButtonType: buttonType)
+    }
+
+    // MARK: - Private Methods
 
     private class func actionLabel() -> UILabel! {
         var label: UILabel! = UILabel(frame: CGRectZero)
         label.setTranslatesAutoresizingMaskIntoConstraints(false)
         label.textAlignment = .Center
-        label.font = UIFont.systemFontOfSize(10.0)
+        label.font = UIFont.systemFontOfSize(11.0)
         label.backgroundColor = UIColor.clearColor()
-        label.textColor = UIColor.blackColor()
+        label.textColor = Color.text
 
         return label
     }
