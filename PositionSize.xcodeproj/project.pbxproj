@@ -14,6 +14,7 @@
 		168BF8FF199BB2630024E4FC /* PositionSizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168BF8FE199BB2630024E4FC /* PositionSizeTests.swift */; };
 		1696DF5C19A06FBC0071219A /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696DF5B19A06FBC0071219A /* SummaryView.swift */; };
 		16A043EB19AA58C40032C6E3 /* ActionTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043EA19AA58C40032C6E3 /* ActionTileView.swift */; };
+		16A043ED19AA6F9A0032C6E3 /* PriceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */; };
 		16ADBF8E19A936DD002C37FB /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF8D19A936DD002C37FB /* Color.swift */; };
 		16ADBF9019A93718002C37FB /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF8F19A93718002C37FB /* UIColor+Hex.swift */; };
 		16ADBF9319A94FE5002C37FB /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF9219A94FE5002C37FB /* AppConfig.swift */; };
@@ -49,6 +50,7 @@
 		168BF8FE199BB2630024E4FC /* PositionSizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionSizeTests.swift; sourceTree = "<group>"; };
 		1696DF5B19A06FBC0071219A /* SummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
 		16A043EA19AA58C40032C6E3 /* ActionTileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionTileView.swift; sourceTree = "<group>"; };
+		16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceViewController.swift; sourceTree = "<group>"; };
 		16ADBF8D19A936DD002C37FB /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		16ADBF8F19A93718002C37FB /* UIColor+Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		16ADBF9219A94FE5002C37FB /* AppConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				16878CCF199C502000379918 /* MainViewController.swift */,
 				16F23F96199DA1A6003EE89B /* SettingsViewController.swift */,
 				16ADBF9419A9915F002C37FB /* PercentViewController.swift */,
+				16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 				1696DF5C19A06FBC0071219A /* SummaryView.swift in Sources */,
 				16ADBF9919A9986A002C37FB /* Button.swift in Sources */,
 				160E313619A2E8250004D44B /* SummaryDetailView.swift in Sources */,
+				16A043ED19AA6F9A0032C6E3 /* PriceViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

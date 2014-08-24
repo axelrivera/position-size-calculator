@@ -42,7 +42,6 @@ class SummaryView: UIView, UIScrollViewDelegate {
         scrollView.pagingEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
-        scrollView.bounces = false
 
         scrollView.delegate = self
 
@@ -157,6 +156,8 @@ class SummaryView: UIView, UIScrollViewDelegate {
             }
         }
 
+        scrollView.backgroundColor = tradePanel.backgroundColor
+
         updateScrollPanels = true
         self.setNeedsLayout()
     }
@@ -173,7 +174,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
         allowedTradePanel.leftTextLabel.text = shares
     }
 
-    func setAllowedCost(cost: NSString!) {
+    func setAllowedTradeCost(cost: NSString!) {
         allowedTradePanel.rightTextLabel.text = cost
     }
 
@@ -185,5 +186,13 @@ class SummaryView: UIView, UIScrollViewDelegate {
         let pageWidth = scrollView.bounds.size.width
         let page = Int(floor((scrollView.contentOffset.x - pageWidth / 2.0) / pageWidth) + 1)
         pageControl.currentPage = page
+
+        if page == 0 {
+            scrollView.backgroundColor = tradePanel.backgroundColor
+        } else if page == 1 {
+            scrollView.backgroundColor = allowedTradePanel.backgroundColor
+        } else {
+            scrollView.backgroundColor = Color.ultraLightGray
+        }
     }
 }

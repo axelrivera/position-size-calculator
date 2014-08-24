@@ -8,19 +8,20 @@
 
 import UIKit
 
-struct PercentObject {
-    var headerString: String!
-    var footerString: String!
+struct PercentConfig {
+    var header: String!
+    var footer: String!
     var step: Double = 0.1
     var percentage: Double = 0.0
 
     init(header: String!, footer: String!) {
-        headerString = header
-        footerString = footer
+        self.header = header
+        self.footer = footer
     }
 }
 
 class PercentViewController: UIViewController {
+
     var headerLabel: UILabel!
     var footerLabel: UILabel!
 
@@ -30,18 +31,19 @@ class PercentViewController: UIViewController {
     var cancelButton: UIButton!
     var saveButton: UIButton!
 
-    var cancelBlock: ((controller: PercentViewController) -> Void)?
-    var saveBlock: ((controller: PercentViewController, percent: PercentObject) -> Void)?
+    let config: PercentConfig!
+    var percent: Double = 0.0
 
-    var percent: PercentObject!
+    var cancelBlock: ((controller: PercentViewController) -> Void)?
+    var saveBlock: ((controller: PercentViewController, percent: Double) -> Void)?
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    init(percent: PercentObject) {
+    init(config: PercentConfig) {
         super.init(nibName: nil, bundle: nil)
-        self.percent = percent
+        self.config = config
     }
 
     override func loadView() {
@@ -59,7 +61,7 @@ class PercentViewController: UIViewController {
         headerLabel.font = UIFont.systemFontOfSize(20.0)
         headerLabel.textAlignment = .Center
 
-        headerLabel.text = percent.headerString
+        headerLabel.text = config.header
 
         self.view.addSubview(headerLabel)
 
@@ -97,9 +99,9 @@ class PercentViewController: UIViewController {
         cancelButton.setTranslatesAutoresizingMaskIntoConstraints(false)
         cancelButton.setTitle("Cancel", forState: .Normal)
 
-        cancelButton.addTarget(self, action: "dismissAction:", forControlEvents: .TouchUpInside)
+        cancelButton.addTarget(self, action: "cancelAction:", forControlEvents: .TouchUpInside)
 
-        cancelButton.autoSetDimensionsToSize(CGSizeMake(130.0, 37.0))
+        cancelButton.autoSetDimension(.Height, toSize: 37.0)
 
         self.view.addSubview(cancelButton)
 
@@ -109,13 +111,13 @@ class PercentViewController: UIViewController {
 
         saveButton.addTarget(self, action: "saveAction:", forControlEvents: .TouchUpInside)
 
-        saveButton.autoSetDimensionsToSize(CGSizeMake(130.0, 37.0))
+        saveButton.autoSetDimension(.Height, toSize: 37.0)
         
         self.view.addSubview(saveButton)
 
         // AutoLayout
 
-        headerLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 40.0)
+        headerLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 20.0)
         headerLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         headerLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
@@ -127,11 +129,14 @@ class PercentViewController: UIViewController {
         sliderView.autoPinEdgeToSuperviewEdge(.Left, withInset: 30.0)
         sliderView.autoPinEdgeToSuperviewEdge(.Right, withInset: 30.0)
 
+        cancelButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
         cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: sliderView, withOffset: 50.0)
-        cancelButton.autoAlignAxis(.Vertical, toSameAxisOfView: self.view, withOffset: -75.0)
+        cancelButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
 
+        saveButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
         saveButton.autoPinEdge(.Top, toEdge: .Top, ofView: cancelButton)
-        saveButton.autoAlignAxis(.Vertical, toSameAxisOfView: self.view, withOffset: 75.0)
+        saveButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -141,7 +146,7 @@ class PercentViewController: UIViewController {
 
     // MARK: - Selector Methods
 
-    func dismissAction(sender: AnyObject!) {
+    func cancelAction(sender: AnyObject!) {
         if let block = cancelBlock {
             block(controller: self)
         }

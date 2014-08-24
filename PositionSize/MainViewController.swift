@@ -129,7 +129,12 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         summaryView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
 
-        summaryView.setStatus(.None)
+        summaryView.setStatus(.NotApproved)
+
+        summaryView.setShares("100")
+        summaryView.setTradeCost("$1,234.00")
+        summaryView.setAllowedShares("90")
+        summaryView.setAllowedTradeCost("$1,000.00")
 
         // Setup Default Values
 
@@ -178,6 +183,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         actionView.setRiskHeaderText("$100.00")
         actionView.setPositionSizeHeaderText("$20,000.00")
         actionView.setEntryHeaderText("Long")
+        actionView.setStopHeaderText("1R = $1.23")
     }
 
     // MARK: - ActionViewDelegate Methods
@@ -198,9 +204,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func riskAction(sender: AnyObject!) {
-        let percent = PercentObject(header: "Risk Percentage", footer: nil)
+        var config = PercentConfig(header: "Risk Percentage", footer: nil)
 
-        let percentController = PercentViewController(percent: percent)
+        let percentController = PercentViewController(config: config)
         percentController.modalTransitionStyle = .CrossDissolve
 
         percentController.cancelBlock = { [weak self] (controller: PercentViewController) in
@@ -213,15 +219,50 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func positionSize(sender: AnyObject!) {
+        var config = PercentConfig(header: "Maximum Position Size", footer: nil)
 
+        let percentController = PercentViewController(config: config)
+        percentController.modalTransitionStyle = .CrossDissolve
+
+        percentController.cancelBlock = { [weak self] (controller: PercentViewController) in
+            if let weakSelf = self {
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        self.presentViewController(percentController, animated: true, completion: nil)
     }
 
     func entryAction(sender: AnyObject!) {
+        var config = PriceConfig(header: "Entry Price")
+        config.priceType = .Entry
 
+        let priceController = PriceViewController(config: config)
+        priceController.modalTransitionStyle = .CrossDissolve
+
+        priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
+            if let weakSelf = self {
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        self.presentViewController(priceController, animated: true, completion: nil)
     }
 
     func stopAction(sender: AnyObject!) {
+        var config = PriceConfig(header: "Stop Loss Price")
+        config.priceType = .Stop
 
+        let priceController = PriceViewController(config: config)
+        priceController.modalTransitionStyle = .CrossDissolve
+
+        priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
+            if let weakSelf = self {
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        self.presentViewController(priceController, animated: true, completion: nil)
     }
 
 }

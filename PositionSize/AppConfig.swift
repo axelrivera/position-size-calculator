@@ -8,6 +8,12 @@
 
 import Foundation
 
+enum TradeType {
+    case None
+    case Long
+    case Short
+}
+
 enum TraderProfile: String {
     case Aggressive = "TraderProfileAggressive"
     case Moderate = "TraderProfileModerate"
