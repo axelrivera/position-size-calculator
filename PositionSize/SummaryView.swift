@@ -13,6 +13,7 @@ enum SummaryViewStatus {
 }
 
 class SummaryView: UIView, UIScrollViewDelegate {
+    
     struct Config {
         static let verticalPadding: CGFloat = 10.0
         static let horizontalPadding: CGFloat = 10.0
@@ -55,18 +56,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
         self.addSubview(pageControl)
 
         tradePanel = SummaryDetailView(frame: CGRectZero)
-        tradePanel.titleLabel.textColor = UIColor.whiteColor()
-        tradePanel.leftTextLabel.textColor = UIColor.whiteColor()
-        tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
-        tradePanel.rightTextLabel.textColor = UIColor.whiteColor()
-        tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
-
         allowedTradePanel = SummaryDetailView(frame: CGRectZero)
-        allowedTradePanel.titleLabel.textColor = UIColor.whiteColor()
-        allowedTradePanel.leftTextLabel.textColor = UIColor.whiteColor()
-        allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
-        allowedTradePanel.rightTextLabel.textColor = UIColor.whiteColor()
-        allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
     }
 
     required init(coder aDecoder: NSCoder) {
@@ -111,7 +101,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
         if status == .NotApproved {
             pageControl.numberOfPages = 2
 
-            tradePanel.titleLabel.text = "Not Approved"
+            tradePanel.titleLabel.text = "NOT APPROVED"
             tradePanel.leftDetailLabel.text = "Shares"
             tradePanel.rightDetailLabel.text = "Cost of Trade"
 
@@ -119,7 +109,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
             scrollView.addSubview(tradePanel)
 
-            allowedTradePanel.titleLabel.text = "Allowed"
+            allowedTradePanel.titleLabel.text = "ALLOWED"
             allowedTradePanel.leftDetailLabel.text = "Allowed Shares"
             allowedTradePanel.rightDetailLabel.text = "Allowed Cost of Trade"
 
@@ -130,19 +120,41 @@ class SummaryView: UIView, UIScrollViewDelegate {
             pageControl.numberOfPages = 1
 
             if status == .Approved {
-                tradePanel.titleLabel.text = "Approved"
+                tradePanel.titleLabel.text = "APPROVED"
                 tradePanel.backgroundColor = Color.green
             } else {
-                tradePanel.titleLabel.text = "Results"
+                tradePanel.titleLabel.text = "RESULTS"
                 tradePanel.leftTextLabel.text = "0"
-                tradePanel.rightTextLabel.text = "$0.0"
-                tradePanel.backgroundColor = Color.gray
+                tradePanel.rightTextLabel.text = "$0.00"
+                tradePanel.backgroundColor = Color.lightGray
             }
 
             tradePanel.leftDetailLabel.text = "Shares"
             tradePanel.rightDetailLabel.text = "Cost of Trade"
 
             scrollView.addSubview(tradePanel)
+        }
+
+        if status == .None {
+            tradePanel.titleLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.7)
+            tradePanel.leftTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.7)
+            tradePanel.leftDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.6)
+            tradePanel.rightTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.7)
+            tradePanel.rightDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.6)
+        } else {
+            tradePanel.titleLabel.textColor = UIColor.whiteColor()
+            tradePanel.leftTextLabel.textColor = UIColor.whiteColor()
+            tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+            tradePanel.rightTextLabel.textColor = UIColor.whiteColor()
+            tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+
+            if (status == .NotApproved) {
+                allowedTradePanel.titleLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.leftTextLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                allowedTradePanel.rightTextLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+            }
         }
 
         updateScrollPanels = true

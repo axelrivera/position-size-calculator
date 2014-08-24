@@ -22,7 +22,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     override func loadView() {
         self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = UIColor(white: 0.98, alpha: 1.0)
+        self.view.backgroundColor = Color.background
     }
 
     override func viewDidLoad() {
@@ -122,8 +122,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
         investorHeader.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         investorHeader.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
-        actionView.autoPinEdge(.Top, toEdge: .Bottom, ofView: investorHeader, withOffset: 15.0)
-        actionView.autoPinEdge(.Bottom, toEdge: .Top, ofView: summaryView, withOffset: -15.0)
+        actionView.autoPinEdge(.Top, toEdge: .Bottom, ofView: investorHeader, withOffset: 10.0)
+        actionView.autoPinEdge(.Bottom, toEdge: .Top, ofView: summaryView, withOffset: -10.0)
         actionView.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         actionView.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
@@ -173,12 +173,55 @@ class MainViewController: UIViewController, ActionViewDelegate {
         }
 
         actionView.setRiskText(riskStr)
-        actionView.setMaximumSizeText(sizeStr)
+        actionView.setPositionSizeText(sizeStr)
+
+        actionView.setRiskHeaderText("$100.00")
+        actionView.setPositionSizeHeaderText("$20,000.00")
+        actionView.setEntryHeaderText("Long")
     }
 
     // MARK: - ActionViewDelegate Methods
 
     func actionView(actionView: ActionView, didSelectButtonType buttonType: ActionViewButtonType) {
-        println("button selected: \(buttonType.toRaw())")
+        switch buttonType {
+        case .Risk:
+            self.riskAction(nil)
+        case .PositionSize:
+            self.positionSize(nil)
+        case .Entry:
+            self.entryAction(nil)
+        case .Stop:
+            self.stopAction(nil)
+        default:
+            println("invalid action")
+        }
     }
+
+    func riskAction(sender: AnyObject!) {
+        let percent = PercentObject(header: "Risk Percentage", footer: nil)
+
+        let percentController = PercentViewController(percent: percent)
+        percentController.modalTransitionStyle = .CrossDissolve
+
+        percentController.cancelBlock = { [weak self] (controller: PercentViewController) in
+            if let weakSelf = self {
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        self.presentViewController(percentController, animated: true, completion: nil)
+    }
+
+    func positionSize(sender: AnyObject!) {
+
+    }
+
+    func entryAction(sender: AnyObject!) {
+
+    }
+
+    func stopAction(sender: AnyObject!) {
+
+    }
+
 }

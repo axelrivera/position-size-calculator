@@ -52,4 +52,12 @@ struct Color {
     static var text: UIColor {
         return gray
     }
+
+    static var header: UIColor {
+        return darkGray
+    }
+
+    static var background: UIColor {
+        return UIColor.colorWithHex(0xEEEEEC)
+    }
 }

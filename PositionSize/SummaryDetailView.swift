@@ -53,7 +53,7 @@ class SummaryDetailView: UIView {
     }
 
     override func updateConstraints() {
-        titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: 15.0)
+        titleLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: 10.0)
         titleLabel.autoAlignAxisToSuperviewAxis(.Vertical)
 
         leftDetailLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 20.0)
