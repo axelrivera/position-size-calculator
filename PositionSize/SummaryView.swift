@@ -195,4 +195,5 @@ class SummaryView: UIView, UIScrollViewDelegate {
             scrollView.backgroundColor = Color.ultraLightGray
         }
     }
+    
 }

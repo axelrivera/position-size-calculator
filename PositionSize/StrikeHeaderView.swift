@@ -69,4 +69,5 @@ class StrikeHeaderView: UIView {
     override func intrinsicContentSize() -> CGSize {
         return CGSizeMake(UIViewNoIntrinsicMetric, 16.0)
     }
+    
 }

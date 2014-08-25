@@ -94,4 +94,5 @@ class SummaryDetailView: UIView {
 
         return label
     }
+    
 }

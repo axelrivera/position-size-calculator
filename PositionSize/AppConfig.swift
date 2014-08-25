@@ -46,7 +46,7 @@ class AppConfig {
         return AppConfig.indexForTraderProfile(AppConfig.defaultTraderProfile())
     }
 
-    class func titleForTraderProfile(profile: TraderProfile) -> NSString {
+    class func titleForTraderProfile(profile: TraderProfile) -> String {
         var title: String
         switch profile {
         case .Aggressive:
@@ -59,6 +59,23 @@ class AppConfig {
             title = "NONE"
         }
         return title
+    }
+
+    class func traderProfileForIndex(index: Int) -> TraderProfile {
+        var profile: TraderProfile
+
+        switch index {
+        case 0:
+            profile = .Aggressive
+        case 1:
+            profile = .Moderate
+        case 2:
+            profile = .Conservative
+        default:
+            profile = .Conservative
+        }
+        
+        return profile
     }
 
     class func indexForTraderProfile(profile: TraderProfile) -> Int {

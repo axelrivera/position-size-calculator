@@ -9,6 +9,7 @@
 import Foundation
 
 struct Color {
+
     static var green: UIColor {
         return UIColor.colorWithHex(0x4CD964)
     }
@@ -60,4 +61,5 @@ struct Color {
     static var background: UIColor {
         return UIColor.colorWithHex(0xEEEEEC)
     }
+
 }

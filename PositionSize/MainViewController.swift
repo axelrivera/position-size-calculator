@@ -20,6 +20,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     var currentTradingStyleIndex: Int!
 
+    var position: Position!
+
     override func loadView() {
         self.view = UIView(frame: UIScreen.mainScreen().bounds)
         self.view.backgroundColor = Color.background
@@ -27,6 +29,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        position = Position()
 
         currentTradingStyleIndex = AppConfig.indexForCurrentTraderProfile()
 
@@ -55,8 +59,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
         accountSizeButton.titleLabel.textAlignment = .Center
         accountSizeButton.titleLabel.minimumScaleFactor = 12.0 / 28.0;
         accountSizeButton.titleLabel.adjustsFontSizeToFitWidth = true;
-
-        accountSizeButton.setTitle("Tap to Enter Your Account Size", forState: .Normal)
 
         self.view.addSubview(accountSizeButton)
 
@@ -147,6 +149,26 @@ class MainViewController: UIViewController, ActionViewDelegate {
         // Dispose of any resources that can be recreated.
     }
 
+    // MARK: - Public Methods
+
+    func updatePositionValues() {
+        position.updateValuesForTraderProfile(AppConfig.traderProfileForIndex(currentTradingStyleIndex))
+
+        accountSizeButton.setTitle(position.accountSizeString(), forState: .Normal)
+
+        actionView.setRiskHeaderText(position.riskTotalString())
+        actionView.setRiskText(position.riskPercentageString())
+
+        actionView.setPositionSizeHeaderText(position.maxPositionSizeTotalString())
+        actionView.setPositionSizeText(position.maxPositionSizeString())
+
+        actionView.setEntryHeaderText(position.tradeTypeString())
+        actionView.setEntryPriceText(position.entryPriceString())
+
+        actionView.setStopHeaderText(position.riskTotalString())
+        actionView.setStopPriceText(position.stopPriceString())
+    }
+
     // MARK: - Selector Methods
 
     func settingsAction(sender: AnyObject!) {
@@ -162,28 +184,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     func segmentedControlChanged(segmentedControl: UISegmentedControl!) {
         currentTradingStyleIndex = segmentedControl.selectedSegmentIndex
-
-        var riskStr: String
-        var sizeStr: String
-
-        if currentTradingStyleIndex == 0 {
-            riskStr = "2%"
-            sizeStr = "20%"
-        } else if currentTradingStyleIndex == 1 {
-            riskStr = "1.5%"
-            sizeStr = "15%"
-        } else {
-            riskStr = "1%"
-            sizeStr = "10%"
-        }
-
-        actionView.setRiskText(riskStr)
-        actionView.setPositionSizeText(sizeStr)
-
-        actionView.setRiskHeaderText("$100.00")
-        actionView.setPositionSizeHeaderText("$20,000.00")
-        actionView.setEntryHeaderText("Long")
-        actionView.setStopHeaderText("1R = $1.23")
+        updatePositionValues()
     }
 
     // MARK: - ActionViewDelegate Methods
