@@ -11,8 +11,10 @@ import UIKit
 struct PercentConfig {
     var header: String!
     var footer: String!
-    var step: Double = 0.1
-    var percentage: Double = 0.0
+    var step: Float = 1.0
+    var minValue: Float = 0.0
+    var maxValue: Float = 100.0
+    var percent: Float = 0.0
 
     init(header: String!, footer: String!) {
         self.header = header
@@ -32,10 +34,10 @@ class PercentViewController: UIViewController {
     var saveButton: UIButton!
 
     let config: PercentConfig!
-    var percent: Double = 0.0
+    var percent: Float = 0.0
 
     var cancelBlock: ((controller: PercentViewController) -> Void)?
-    var saveBlock: ((controller: PercentViewController, percent: Double) -> Void)?
+    var saveBlock: ((controller: PercentViewController, percent: Float) -> Void)?
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -53,6 +55,8 @@ class PercentViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        percent = config.percent
 
         headerLabel = UILabel(frame: CGRectZero)
         headerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -72,14 +76,17 @@ class PercentViewController: UIViewController {
         textLabel.font = UIFont.systemFontOfSize(70.0)
         textLabel.textAlignment = .Center
 
-        textLabel.text = "0.0%"
-
         self.view.addSubview(textLabel)
 
         sliderView = UISlider(frame: CGRectZero)
         sliderView.setTranslatesAutoresizingMaskIntoConstraints(false)
         sliderView.minimumTrackTintColor = Color.highlight
         sliderView.maximumTrackTintColor = Color.highlight
+
+        sliderView.minimumValue = config.minValue
+        sliderView.maximumValue = config.maxValue
+
+        sliderView.addTarget(self, action: "sliderChanged:", forControlEvents: .ValueChanged)
 
         self.view.addSubview(sliderView)
 
@@ -137,6 +144,22 @@ class PercentViewController: UIViewController {
         saveButton.autoPinEdge(.Top, toEdge: .Top, ofView: cancelButton)
         saveButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
+        // Default Values
+
+        sliderView.value = percent
+        sliderChanged(sliderView)
+    }
+
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+
+        var animation = CATransition()
+        animation.duration = 0.1
+        animation.type = kCATransitionFade
+        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        animation.removedOnCompletion = false
+
+        textLabel.layer.addAnimation(animation, forKey: "changeTextTransition")
     }
 
     override func didReceiveMemoryWarning() {
@@ -156,5 +179,13 @@ class PercentViewController: UIViewController {
         if let block = saveBlock {
             block(controller: self, percent: percent)
         }
+    }
+
+    func sliderChanged(slider: UISlider) {
+        let tmpStep = roundf(slider.value / config.step)
+        percent = tmpStep * config.step
+
+        slider.value = percent
+        self.textLabel.text = NSDecimalNumber(float: self.percent / 100.0).percentString()
     }
 }

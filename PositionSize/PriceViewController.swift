@@ -11,19 +11,29 @@ import UIKit
 enum PriceType {
     case Entry
     case Stop
+    case Account
 }
 
 struct PriceConfig {
     var priceType: PriceType = .Entry
     var header: String!
-    var tradeType: TradeType = .Long
+    var tradeType: TradeType = .None
+    var defaultPrice: NSDecimalNumber!
+
+    var maxDigits: Int {
+        get {
+            return priceType == .Account ? 12 : 7
+        }
+    }
+
+    static let currencyScale = -2
 
     init(header: String!) {
         self.header = header
     }
 }
 
-class PriceViewController: UIViewController {
+class PriceViewController: UIViewController, UITextFieldDelegate {
 
     var headerLabel: UILabel!
     var textField: UITextField!
@@ -35,6 +45,8 @@ class PriceViewController: UIViewController {
     var cancelButton: UIButton!
 
     let config: PriceConfig!
+
+    var digits: String!
     var price: NSDecimalNumber = NSDecimalNumber.zero()
 
     var cancelBlock: ((controller: PriceViewController) -> Void)?
@@ -47,6 +59,8 @@ class PriceViewController: UIViewController {
     init(config: PriceConfig) {
         super.init(nibName: nil, bundle: nil)
         self.config = config
+
+        setDefaultValues()
     }
 
     override func loadView() {
@@ -56,6 +70,10 @@ class PriceViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if let tmp = config.defaultPrice {
+            price = tmp
+        }
 
         headerLabel = UILabel(frame: CGRectZero)
         headerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -72,11 +90,16 @@ class PriceViewController: UIViewController {
         textField.setTranslatesAutoresizingMaskIntoConstraints(false)
         textField.font = UIFont.systemFontOfSize(32.0)
         textField.textAlignment = .Center
-        textField.placeholder = "Enter Price"
+        textField.placeholder = NSDecimalNumber.zero().currencyString()
+        textField.clearButtonMode = .WhileEditing
         textField.keyboardType = .NumberPad
         textField.backgroundColor = UIColor.whiteColor()
         textField.textColor = Color.text
         textField.contentVerticalAlignment = .Center
+        textField.adjustsFontSizeToFitWidth = true
+        textField.minimumFontSize = 20.0
+
+        textField.delegate = self
 
         textField.autoSetDimension(.Height, toSize: 50.0)
 
@@ -162,12 +185,25 @@ class PriceViewController: UIViewController {
 
         // Default Values
 
+        if self.price.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
+            self.textField.text = self.price.currencyString()
+        } else {
+            self.textField.text = ""
+        }
+
         textField.becomeFirstResponder()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+
+    // MARK: - Public Methods
+
+    func setDefaultValues() {
+        digits = ""
+        price = NSDecimalNumber.zero()
     }
 
     // MARK: - Selector Methods
@@ -199,5 +235,50 @@ class PriceViewController: UIViewController {
             block(controller: self, price: price, tradeType: tradeType)
         }
     }
-    
+
+    // MARK: - UITextFieldDelegate Methods
+
+    func textFieldDidBeginEditing(textField: UITextField!) {
+        if price.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
+            let power = abs(PriceConfig.currencyScale)
+            let digitsNumber: NSDecimalNumber = price.decimalNumberByMultiplyingByPowerOf10(Int16(power))
+            digits = digitsNumber.stringValue
+        }
+    }
+
+    func textField(textField: UITextField!, shouldChangeCharactersInRange range: NSRange, replacementString string: String!) -> Bool {
+        if string == "0" && countElements(digits) == 0 {
+            return false
+        }
+
+        if countElements(string) > 0 {
+            if countElements(digits) + 1 <= config.maxDigits {
+                digits = digits.stringByAppendingString(string)
+            }
+        } else {
+            // This is a backspace
+            let length = countElements(digits)
+            if length > 1 {
+                digits = digits.substringWithRange(Range<String.Index>(start: digits.startIndex, end: digits.endIndex.predecessor()))
+            } else {
+                digits = ""
+            }
+        }
+
+        var number = NSDecimalNumber.zero()
+        if digits != "" {
+            let decimal = NSDecimalNumber(string: digits)
+            number = decimal.decimalNumberByMultiplyingByPowerOf10(Int16(PriceConfig.currencyScale))
+        }
+
+        price = number
+        textField.text = price.currencyString()
+
+        return false
+    }
+
+    func textFieldShouldClear(textField: UITextField!) -> Bool {
+        setDefaultValues()
+        return true
+    }
 }

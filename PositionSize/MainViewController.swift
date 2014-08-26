@@ -18,8 +18,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
     var actionView: ActionView!
     var summaryView: SummaryView!
 
-    var currentTradingStyleIndex: Int!
-
     var position: Position!
 
     override func loadView() {
@@ -31,8 +29,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         super.viewDidLoad()
 
         position = Position()
-
-        currentTradingStyleIndex = AppConfig.indexForCurrentTraderProfile()
+        position.updateValuesForTraderProfile(AppConfig.defaultTraderProfile())
 
         settingsButton = UIButton.buttonWithType(.System) as UIButton!
         settingsButton.setImage(UIImage(named: "settings"), forState: .Normal)
@@ -55,10 +52,12 @@ class MainViewController: UIViewController, ActionViewDelegate {
         accountSizeButton = UIButton.buttonWithType(.System) as UIButton
         accountSizeButton.setTranslatesAutoresizingMaskIntoConstraints(false)
 
-        accountSizeButton.titleLabel.font = UIFont.systemFontOfSize(28.0)
+        accountSizeButton.titleLabel.font = UIFont.systemFontOfSize(36.0)
         accountSizeButton.titleLabel.textAlignment = .Center
-        accountSizeButton.titleLabel.minimumScaleFactor = 12.0 / 28.0;
+        accountSizeButton.titleLabel.minimumScaleFactor = 12.0 / 36.0;
         accountSizeButton.titleLabel.adjustsFontSizeToFitWidth = true;
+
+        accountSizeButton.addTarget(self, action: "accountSizeAction:", forControlEvents: .TouchUpInside)
 
         self.view.addSubview(accountSizeButton)
 
@@ -74,6 +73,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         segmentedControl.setWidth(95.0, forSegmentAtIndex: 0)
         segmentedControl.setWidth(95.0, forSegmentAtIndex: 1)
         segmentedControl.setWidth(95.0, forSegmentAtIndex: 2)
+        segmentedControl.momentary = true
 
         segmentedControl.addTarget(self, action: "segmentedControlChanged:", forControlEvents: .ValueChanged)
 
@@ -138,10 +138,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
         summaryView.setAllowedShares("90")
         summaryView.setAllowedTradeCost("$1,000.00")
 
-        // Setup Default Values
+        // Default Values
 
-        segmentedControl.selectedSegmentIndex = currentTradingStyleIndex
-        segmentedControlChanged(segmentedControl)
+        updatePositionValues()
     }
 
     override func didReceiveMemoryWarning() {
@@ -152,11 +151,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
     // MARK: - Public Methods
 
     func updatePositionValues() {
-        position.updateValuesForTraderProfile(AppConfig.traderProfileForIndex(currentTradingStyleIndex))
-
         accountSizeButton.setTitle(position.accountSizeString(), forState: .Normal)
 
-        actionView.setRiskHeaderText(position.riskTotalString())
+        actionView.setRiskHeaderText(position.riskPercentageTotalString())
         actionView.setRiskText(position.riskPercentageString())
 
         actionView.setPositionSizeHeaderText(position.maxPositionSizeTotalString())
@@ -167,6 +164,16 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         actionView.setStopHeaderText(position.riskTotalString())
         actionView.setStopPriceText(position.stopPriceString())
+
+        if position.isReady {
+            if position.tradeType == TradeType.Long {
+                summaryView.setStatus(.Approved)
+            } else {
+                summaryView.setStatus(.NotApproved)
+            }
+        } else {
+            summaryView.setStatus(.None)
+        }
     }
 
     // MARK: - Selector Methods
@@ -179,11 +186,33 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func accountSizeAction(sender: AnyObject!) {
+        var config = PriceConfig(header: "Account Size")
+        config.priceType = .Account
+        config.defaultPrice = position.accountSize
 
+        let priceController = PriceViewController(config: config)
+        priceController.modalTransitionStyle = .CrossDissolve
+
+        priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
+            if let weakSelf = self {
+                weakSelf.position.accountSize = price
+                weakSelf.updatePositionValues()
+
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
+            if let weakSelf = self {
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
+
+        self.presentViewController(priceController, animated: true, completion: nil)
     }
 
     func segmentedControlChanged(segmentedControl: UISegmentedControl!) {
-        currentTradingStyleIndex = segmentedControl.selectedSegmentIndex
+        position.updateValuesForTraderProfile(AppConfig.traderProfileForIndex(segmentedControl.selectedSegmentIndex))
         updatePositionValues()
     }
 
@@ -206,9 +235,22 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     func riskAction(sender: AnyObject!) {
         var config = PercentConfig(header: "Risk Percentage", footer: nil)
+        config.minValue = 0.0
+        config.maxValue = 10.0
+        config.step = 0.25
+        config.percent = position.riskPercentage.floatValue * 100.0
 
         let percentController = PercentViewController(config: config)
         percentController.modalTransitionStyle = .CrossDissolve
+
+        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Float) in
+            if let weakSelf = self {
+                weakSelf.position.riskPercentage = NSDecimalNumber(float: percent / 100.0)
+                weakSelf.updatePositionValues()
+
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
 
         percentController.cancelBlock = { [weak self] (controller: PercentViewController) in
             if let weakSelf = self {
@@ -221,9 +263,22 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     func positionSize(sender: AnyObject!) {
         var config = PercentConfig(header: "Maximum Position Size", footer: nil)
+        config.minValue = 0.0
+        config.maxValue = 100.0
+        config.step = 1.0
+        config.percent = position.maxPositionSize.floatValue * 100.0
 
         let percentController = PercentViewController(config: config)
         percentController.modalTransitionStyle = .CrossDissolve
+
+        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Float) in
+            if let weakSelf = self {
+                weakSelf.position.maxPositionSize = NSDecimalNumber(float: percent / 100.0)
+                weakSelf.updatePositionValues()
+
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
 
         percentController.cancelBlock = { [weak self] (controller: PercentViewController) in
             if let weakSelf = self {
@@ -237,9 +292,21 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func entryAction(sender: AnyObject!) {
         var config = PriceConfig(header: "Entry Price")
         config.priceType = .Entry
+        config.tradeType = position.tradeType
+        config.defaultPrice = position.entryPrice
 
         let priceController = PriceViewController(config: config)
         priceController.modalTransitionStyle = .CrossDissolve
+
+        priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
+            if let weakSelf = self {
+                weakSelf.position.entryPrice = price
+                weakSelf.position.tradeType = tradeType
+                weakSelf.updatePositionValues()
+
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
 
         priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
             if let weakSelf = self {
@@ -253,9 +320,19 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func stopAction(sender: AnyObject!) {
         var config = PriceConfig(header: "Stop Loss Price")
         config.priceType = .Stop
+        config.defaultPrice = position.stopPrice
 
         let priceController = PriceViewController(config: config)
         priceController.modalTransitionStyle = .CrossDissolve
+
+        priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
+            if let weakSelf = self {
+                weakSelf.position.stopPrice = price
+                weakSelf.updatePositionValues()
+
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        }
 
         priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
             if let weakSelf = self {

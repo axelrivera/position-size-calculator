@@ -18,8 +18,28 @@ extension NSDecimalNumber {
         return NumberFormatter.percent.stringFromNumber(self)
     }
 
-    func singlePercentString() -> String {
-        return NumberFormatter.singlePercent.stringFromNumber(self)
+    func isEqualToDecimalNumber(number: NSDecimalNumber) -> Bool {
+        return self.isEqualToNumber(number)
+    }
+
+    func isGreaterThanDecimalNumber(number: NSDecimalNumber) -> Bool {
+        return self.compare(number) == NSComparisonResult.OrderedDescending
+    }
+
+    func isLessThanDecimalNumber(number: NSDecimalNumber) -> Bool {
+        return self.compare(number) == NSComparisonResult.OrderedAscending
+    }
+
+    func isGreaterThanOrEqualToDecimalNumber(number: NSDecimalNumber) -> Bool {
+        return self.isGreaterThanDecimalNumber(number) || self.isEqualToDecimalNumber(number)
+    }
+
+    func isLessThanOrEqualToDecimalNumber(number: NSDecimalNumber) -> Bool {
+        return self.isLessThanDecimalNumber(number) || self.isEqualToDecimalNumber(number)
+    }
+
+    func isEqualToZero() -> Bool {
+        return self.isEqualToDecimalNumber(NSDecimalNumber.zero())
     }
 
 }

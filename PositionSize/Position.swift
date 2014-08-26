@@ -16,8 +16,14 @@ class Position {
     var entryPrice: NSDecimalNumber = NSDecimalNumber.zero()
     var stopPrice: NSDecimalNumber = NSDecimalNumber.zero()
 
+    var isReady: Bool {
+        get {
+            return !accountSize.isEqualToZero() && !riskPercentage.isEqualToZero() && !maxPositionSize.isEqualToZero() && !entryPrice.isEqualToZero() && !stopPrice.isEqualToZero()
+        }
+    }
+
     func tradeTypeString() -> String! {
-        if entryPrice == NSDecimalNumber.zero() {
+        if entryPrice.isEqualToZero() {
             return nil
         }
 
@@ -38,17 +44,17 @@ class Position {
     // MARK: - Account
 
     func accountSizeString() -> String {
-        return accountSize == NSDecimalNumber.zero() ? "Tap to Enter Your Account Size" : accountSize.currencyString()
+        return accountSize.isEqualToZero() ? "Tap to Enter Your Account Size" : accountSize.currencyString()
     }
 
     // MARK: - Risk
 
     func riskPercentageString() -> String {
-        return riskPercentage == NSDecimalNumber.zero() ? "Select" : riskPercentage.percentString()
+        return riskPercentage.isEqualToZero() ? "Select" : riskPercentage.percentString()
     }
 
     func riskPercentageTotal() -> NSDecimalNumber! {
-        if accountSize == NSDecimalNumber.zero() || riskPercentage == NSDecimalNumber.zero() {
+        if accountSize.isEqualToZero() || riskPercentage.isEqualToZero() {
             return nil
         }
 
@@ -61,7 +67,7 @@ class Position {
     }
 
     func riskTotal() -> NSDecimalNumber! {
-        if entryPrice == NSDecimalNumber.zero() || stopPrice == NSDecimalNumber.zero() {
+        if entryPrice.isEqualToZero() || stopPrice.isEqualToZero() {
             return nil
         }
 
@@ -87,11 +93,11 @@ class Position {
     // MARK: - Maximum Position
 
     func maxPositionSizeString() -> String {
-        return maxPositionSize == NSDecimalNumber.zero() ? "Select" : maxPositionSize.singlePercentString()
+        return maxPositionSize.isEqualToZero() ? "Select" : maxPositionSize.percentString()
     }
 
     func maxPositionSizeTotal() -> NSDecimalNumber! {
-        if accountSize == NSDecimalNumber.zero() || maxPositionSize == NSDecimalNumber.zero() {
+        if accountSize.isEqualToZero() || maxPositionSize.isEqualToZero() {
             return nil
         }
 
@@ -106,13 +112,13 @@ class Position {
     // MARK: - Entry Price
 
     func entryPriceString() -> String {
-        return entryPrice == NSDecimalNumber.zero() ? "Select" : entryPrice.currencyString()
+        return entryPrice.isEqualToZero() ? "Select" : entryPrice.currencyString()
     }
 
     // MARK: - Stop Price
 
     func stopPriceString() -> String {
-        return stopPrice == NSDecimalNumber.zero() ? "Select" : stopPrice.currencyString()
+        return stopPrice.isEqualToZero() ? "Select" : stopPrice.currencyString()
     }
 
     // MARK: -
