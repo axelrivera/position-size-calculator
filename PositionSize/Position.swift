@@ -22,6 +22,23 @@ class Position {
         }
     }
 
+    var isApproved: Bool {
+        get {
+            let ready = isReady
+
+            if !ready {
+                return false
+            }
+
+            let positionSize = maxPositionSizeTotal()
+            let investment = totalInvestment()
+
+            println("total investment: \(investment)")
+
+            return investment.isLessThanOrEqualToDecimalNumber(positionSize)
+        }
+    }
+
     func tradeTypeString() -> String! {
         if entryPrice.isEqualToZero() {
             return nil
@@ -47,50 +64,9 @@ class Position {
         return accountSize.isEqualToZero() ? "Tap to Enter Your Account Size" : accountSize.currencyString()
     }
 
-    // MARK: - Risk
-
     func riskPercentageString() -> String {
         return riskPercentage.isEqualToZero() ? "Select" : riskPercentage.percentString()
     }
-
-    func riskPercentageTotal() -> NSDecimalNumber! {
-        if accountSize.isEqualToZero() || riskPercentage.isEqualToZero() {
-            return nil
-        }
-
-        return accountSize.decimalNumberByMultiplyingBy(riskPercentage)
-    }
-
-    func riskPercentageTotalString() -> String! {
-        let total = riskPercentageTotal()
-        return total == nil ? nil : total.currencyString()
-    }
-
-    func riskTotal() -> NSDecimalNumber! {
-        if entryPrice.isEqualToZero() || stopPrice.isEqualToZero() {
-            return nil
-        }
-
-        var total: NSDecimalNumber!
-
-        switch tradeType {
-        case .Long:
-            total = entryPrice.decimalNumberBySubtracting(stopPrice)
-        case .Short:
-            total = stopPrice.decimalNumberBySubtracting(entryPrice)
-        default:
-            total = nil
-        }
-
-        return total
-    }
-
-    func riskTotalString() -> String! {
-        let total = riskTotal()
-        return total == nil ? nil : "1R = \(total.currencyString())"
-    }
-
-    // MARK: - Maximum Position
 
     func maxPositionSizeString() -> String {
         return maxPositionSize.isEqualToZero() ? "Select" : maxPositionSize.percentString()
@@ -109,16 +85,152 @@ class Position {
         return total == nil ? nil : total.currencyString()
     }
 
-    // MARK: - Entry Price
-
     func entryPriceString() -> String {
         return entryPrice.isEqualToZero() ? "Select" : entryPrice.currencyString()
     }
 
-    // MARK: - Stop Price
-
     func stopPriceString() -> String {
         return stopPrice.isEqualToZero() ? "Select" : stopPrice.currencyString()
+    }
+
+    // MARK: - Calculations
+
+    func riskAmount() -> NSDecimalNumber! {
+        if accountSize.isEqualToZero() || riskPercentage.isEqualToZero() {
+            return nil
+        }
+
+        return accountSize.decimalNumberByMultiplyingBy(riskPercentage)
+    }
+
+    func riskAmountString() -> String! {
+        let amount = riskAmount()
+        return amount == nil ? nil : amount.currencyString()
+    }
+
+    func riskPerShare() -> NSDecimalNumber! {
+        if entryPrice.isEqualToZero() || stopPrice.isEqualToZero() {
+            return nil
+        }
+
+        var risk: NSDecimalNumber!
+
+        switch tradeType {
+        case .Long:
+            risk = entryPrice.decimalNumberBySubtracting(stopPrice)
+        case .Short:
+            risk = stopPrice.decimalNumberBySubtracting(entryPrice)
+        default:
+            risk = nil
+        }
+
+        return risk
+    }
+
+    func riskPerShareString() -> String! {
+        let risk = riskPerShare()
+        return risk == nil ? nil : "1R = \(risk.currencyString())"
+    }
+
+    func numberOfShares() -> NSDecimalNumber! {
+        let risk = riskPerShare()
+        let amount = riskAmount()
+
+        if risk == nil || amount == nil {
+            return nil
+        }
+
+        let roundingMode = NSRoundingMode.RoundDown
+
+        var handler = NSDecimalNumberHandler(
+            roundingMode: roundingMode,
+            scale: 0,
+            raiseOnExactness: true,
+            raiseOnOverflow: true,
+            raiseOnUnderflow: true,
+            raiseOnDivideByZero: true)
+
+        let shares = amount.decimalNumberByDividingBy(risk, withBehavior: handler)
+        println("shares: \(shares)")
+
+        return shares
+    }
+
+    func numberOfSharesString() -> String! {
+        let shares = numberOfShares()
+        return shares == nil ? "0" : shares.stringValue
+    }
+
+    func allowedNumberOfShares() -> NSDecimalNumber! {
+        let approved = isApproved
+
+        if approved {
+            return nil
+        }
+
+        if entryPrice.isEqualToZero() {
+            return nil
+        }
+
+        let positionSize = maxPositionSizeTotal()
+
+        let roundingMode = NSRoundingMode.RoundDown
+
+        var handler = NSDecimalNumberHandler(
+            roundingMode: roundingMode,
+            scale: 0,
+            raiseOnExactness: true,
+            raiseOnOverflow: true,
+            raiseOnUnderflow: true,
+            raiseOnDivideByZero: true)
+
+        let shares = positionSize.decimalNumberByDividingBy(entryPrice, withBehavior: handler)
+        println("allowed shares: \(shares)")
+
+        return shares
+    }
+
+    func allowedNumberOfSharesString() -> String! {
+        let shares = allowedNumberOfShares()
+        return shares == nil ? "0" : shares.stringValue
+    }
+
+    func totalInvestment() -> NSDecimalNumber! {
+        if entryPrice.isEqualToZero() {
+            return nil
+        }
+
+        let shares = numberOfShares()
+
+        if shares == nil {
+            return nil
+        }
+
+        return shares.decimalNumberByMultiplyingBy(entryPrice)
+    }
+
+    func totalInvestmentString() -> String! {
+        let total = totalInvestment()
+        return total == nil ? "0" : total.currencyString()
+    }
+
+    func allowedTotalInvestment() -> NSDecimalNumber! {
+        if entryPrice.isEqualToZero() {
+            return nil
+        }
+
+        let shares = allowedNumberOfShares()
+
+        if shares == nil {
+            return nil
+        }
+
+        return shares.decimalNumberByMultiplyingBy(entryPrice)
+     }
+
+    func allowedTotalInvestmentString() -> String! {
+        let total = allowedTotalInvestment()
+        return total == nil ? "0" : total.currencyString()
     }
 
     // MARK: -

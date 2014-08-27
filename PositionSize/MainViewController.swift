@@ -153,7 +153,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func updatePositionValues() {
         accountSizeButton.setTitle(position.accountSizeString(), forState: .Normal)
 
-        actionView.setRiskHeaderText(position.riskPercentageTotalString())
+        actionView.setRiskHeaderText(position.riskAmountString())
         actionView.setRiskText(position.riskPercentageString())
 
         actionView.setPositionSizeHeaderText(position.maxPositionSizeTotalString())
@@ -162,14 +162,23 @@ class MainViewController: UIViewController, ActionViewDelegate {
         actionView.setEntryHeaderText(position.tradeTypeString())
         actionView.setEntryPriceText(position.entryPriceString())
 
-        actionView.setStopHeaderText(position.riskTotalString())
+        actionView.setStopHeaderText(position.riskPerShareString())
         actionView.setStopPriceText(position.stopPriceString())
 
         if position.isReady {
-            if position.tradeType == TradeType.Long {
+            if position.isApproved {
                 summaryView.setStatus(.Approved)
+
+                summaryView.setShares(position.numberOfSharesString())
+                summaryView.setTradeCost(position.totalInvestmentString())
             } else {
                 summaryView.setStatus(.NotApproved)
+
+                summaryView.setShares(position.numberOfSharesString())
+                summaryView.setTradeCost(position.totalInvestmentString())
+
+                summaryView.setAllowedShares(position.allowedNumberOfSharesString())
+                summaryView.setAllowedTradeCost(position.allowedTotalInvestmentString())
             }
         } else {
             summaryView.setStatus(.None)
