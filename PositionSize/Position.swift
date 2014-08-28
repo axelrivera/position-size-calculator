@@ -16,6 +16,10 @@ class Position {
     var entryPrice: NSDecimalNumber = NSDecimalNumber.zero()
     var stopPrice: NSDecimalNumber = NSDecimalNumber.zero()
 
+    init() {
+        accountSize = NSDecimalNumber(double: 10000.0)
+    }
+
     var isReady: Bool {
         get {
             return !accountSize.isEqualToZero() && !riskPercentage.isEqualToZero() && !maxPositionSize.isEqualToZero() && !entryPrice.isEqualToZero() && !stopPrice.isEqualToZero()
@@ -32,6 +36,10 @@ class Position {
 
             let positionSize = maxPositionSizeTotal()
             let investment = totalInvestment()
+
+            if positionSize == nil || investment == nil {
+                return false
+            }
 
             println("total investment: \(investment)")
 
@@ -105,11 +113,15 @@ class Position {
 
     func riskAmountString() -> String! {
         let amount = riskAmount()
-        return amount == nil ? nil : amount.currencyString()
+        return amount == nil ? nil : "Risk = \(amount.currencyString())"
     }
 
     func riskPerShare() -> NSDecimalNumber! {
         if entryPrice.isEqualToZero() || stopPrice.isEqualToZero() {
+            return nil
+        }
+
+        if entryPrice.isEqualToDecimalNumber(stopPrice) {
             return nil
         }
 
@@ -182,7 +194,7 @@ class Position {
             raiseOnExactness: true,
             raiseOnOverflow: true,
             raiseOnUnderflow: true,
-            raiseOnDivideByZero: true)
+            raiseOnDivideByZero: false)
 
         let shares = positionSize.decimalNumberByDividingBy(entryPrice, withBehavior: handler)
         println("allowed shares: \(shares)")
@@ -233,6 +245,38 @@ class Position {
         return total == nil ? "0" : total.currencyString()
     }
 
+    func allowedRisk() -> NSDecimalNumber! {
+        let risk = riskPerShare()
+        let shares = allowedNumberOfShares()
+
+        if risk == nil || shares == nil {
+            return nil
+        }
+
+        return risk.decimalNumberByMultiplyingBy(shares)
+    }
+
+    func allowedRiskString() -> String! {
+        let risk = allowedRisk()
+        return risk == nil ? NSDecimalNumber.zero().currencyString() : risk.currencyString()
+    }
+
+    func allowedRiskPercentage() -> NSDecimalNumber! {
+        let risk = allowedRisk()
+        let totalRisk = riskAmount()
+
+        if risk == nil || totalRisk == nil {
+            return nil
+        }
+
+        return risk.decimalNumberByDividingBy(totalRisk)
+    }
+
+    func allowedRiskPercentageString() -> String! {
+        let percent = allowedRiskPercentage()
+        return percent == nil ? NSDecimalNumber.zero().percentString() : percent.percentString()
+    }
+
     // MARK: -
 
     func updateValuesForTraderProfile(profile: TraderProfile) {
@@ -254,9 +298,9 @@ class Position {
 
     func resetValues() {
         tradeType = .Long
-        accountSize = NSDecimalNumber.zero()
-        riskPercentage = NSDecimalNumber.zero()
-        maxPositionSize = NSDecimalNumber.zero()
+        //accountSize = NSDecimalNumber.zero()
+        // riskPercentage = NSDecimalNumber.zero()
+        // maxPositionSize = NSDecimalNumber.zero()
         entryPrice = NSDecimalNumber.zero()
         stopPrice = NSDecimalNumber.zero()
     }

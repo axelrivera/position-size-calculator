@@ -17,6 +17,14 @@ struct NumberFormatter {
         return formatter
     }
 
+    static var doubleDecimalPercent: NSNumberFormatter {
+    let formatter = NSNumberFormatter()
+        formatter.numberStyle = .PercentStyle
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 2
+        return formatter
+    }
+
     static var percent: NSNumberFormatter {
         let formatter = NSNumberFormatter()
         formatter.numberStyle = .PercentStyle

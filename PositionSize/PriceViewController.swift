@@ -22,7 +22,7 @@ struct PriceConfig {
 
     var maxDigits: Int {
         get {
-            return priceType == .Account ? 12 : 7
+            return priceType == .Account ? 12 : 9
         }
     }
 

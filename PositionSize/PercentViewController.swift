@@ -11,10 +11,11 @@ import UIKit
 struct PercentConfig {
     var header: String!
     var footer: String!
-    var step: Float = 1.0
-    var minValue: Float = 0.0
-    var maxValue: Float = 100.0
-    var percent: Float = 0.0
+    var step: Double = 1.0
+    var minValue: Double = 0.0
+    var maxValue: Double = 100.0
+    var percent: Double = 0.0
+    var showDecimalValues: Bool = false
 
     init(header: String!, footer: String!) {
         self.header = header
@@ -28,16 +29,17 @@ class PercentViewController: UIViewController {
     var footerLabel: UILabel!
 
     var textLabel: UILabel!
-    var sliderView: UISlider!
+    var stepperView: UIStepper!
 
+    var resetButton: UIButton!
     var cancelButton: UIButton!
     var saveButton: UIButton!
 
     let config: PercentConfig!
-    var percent: Float = 0.0
+    var percent: Double = 0.0
 
     var cancelBlock: ((controller: PercentViewController) -> Void)?
-    var saveBlock: ((controller: PercentViewController, percent: Float) -> Void)?
+    var saveBlock: ((controller: PercentViewController, percent: Double) -> Void)?
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -73,22 +75,30 @@ class PercentViewController: UIViewController {
         textLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         textLabel.textColor = Color.text
         textLabel.backgroundColor = UIColor.clearColor()
-        textLabel.font = UIFont.systemFontOfSize(70.0)
+        textLabel.font = UIFont.systemFontOfSize(50.0)
+        textLabel.minimumScaleFactor = 20.0 / 50.0
+        textLabel.adjustsFontSizeToFitWidth = true
         textLabel.textAlignment = .Center
 
         self.view.addSubview(textLabel)
 
-        sliderView = UISlider(frame: CGRectZero)
-        sliderView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        sliderView.minimumTrackTintColor = Color.highlight
-        sliderView.maximumTrackTintColor = Color.highlight
+        stepperView = UIStepper(frame: CGRectZero)
+        stepperView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        stepperView.minimumValue = config.minValue
+        stepperView.maximumValue = config.maxValue
+        stepperView.stepValue = config.step
 
-        sliderView.minimumValue = config.minValue
-        sliderView.maximumValue = config.maxValue
+        stepperView.addTarget(self, action: "stepperChanged:", forControlEvents: .ValueChanged)
 
-        sliderView.addTarget(self, action: "sliderChanged:", forControlEvents: .ValueChanged)
+        self.view.addSubview(stepperView)
 
-        self.view.addSubview(sliderView)
+        resetButton = UIButton.buttonWithType(.System) as UIButton
+        resetButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        resetButton.setTitle("Reset to Initial Value", forState: .Normal)
+
+        resetButton.addTarget(self, action: "resetAction:", forControlEvents: .TouchUpInside)
+
+        self.view.addSubview(resetButton)
 
 //        footerLabel = UILabel(frame: CGRectZero)
 //        footerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -129,15 +139,18 @@ class PercentViewController: UIViewController {
         headerLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         textLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
-        textLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
         textLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: headerLabel, withOffset: 15.0)
 
-        sliderView.autoPinEdge(.Top, toEdge: .Bottom, ofView: textLabel, withOffset: 15.0)
-        sliderView.autoPinEdgeToSuperviewEdge(.Left, withInset: 30.0)
-        sliderView.autoPinEdgeToSuperviewEdge(.Right, withInset: 30.0)
+        stepperView.autoAlignAxis(.Horizontal, toSameAxisOfView: textLabel)
+        stepperView.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
+
+        textLabel.autoPinEdge(.Right, toEdge: .Left, ofView: stepperView, withOffset: -15.0)
+
+        resetButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: textLabel, withOffset: 15.0)
+        resetButton.autoAlignAxisToSuperviewAxis(.Vertical)
 
         cancelButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
-        cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: sliderView, withOffset: 50.0)
+        cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: resetButton, withOffset: 25.0)
         cancelButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
 
         saveButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
@@ -146,8 +159,7 @@ class PercentViewController: UIViewController {
 
         // Default Values
 
-        sliderView.value = percent
-        sliderChanged(sliderView)
+        resetAction(nil)
     }
 
     override func viewDidAppear(animated: Bool) {
@@ -169,6 +181,11 @@ class PercentViewController: UIViewController {
 
     // MARK: - Selector Methods
 
+    func resetAction(sender: AnyObject!) {
+        stepperView.value = config.percent
+        stepperChanged(stepperView)
+    }
+
     func cancelAction(sender: AnyObject!) {
         if let block = cancelBlock {
             block(controller: self)
@@ -181,11 +198,10 @@ class PercentViewController: UIViewController {
         }
     }
 
-    func sliderChanged(slider: UISlider) {
-        let tmpStep = roundf(slider.value / config.step)
-        percent = tmpStep * config.step
+    func stepperChanged(stepper: UIStepper) {
+        percent = stepper.value
 
-        slider.value = percent
-        self.textLabel.text = NSDecimalNumber(float: self.percent / 100.0).percentString()
+        let decimalNumber = NSDecimalNumber(double: percent / 100.0)
+        self.textLabel.text = config.showDecimalValues ? decimalNumber.doublePercentString() : decimalNumber.percentString()
     }
 }

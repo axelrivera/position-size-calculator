@@ -3,17 +3,16 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "settings.png"
+      "filename" : "reload.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "settings@2x.png"
+      "filename" : "reload@2x.png"
     }
   ],
   "info" : {
     "version" : 1,
-    "author" : "xcode",
-    "template-rendering-intent" : "template"
+    "author" : "xcode"
   }
 }

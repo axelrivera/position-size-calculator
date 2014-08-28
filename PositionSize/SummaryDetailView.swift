@@ -18,6 +18,10 @@ class SummaryDetailView: UIView {
     var rightTextLabel: UILabel!
     var rightDetailLabel: UILabel!
 
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override required init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = UIColor.clearColor()
@@ -33,6 +37,9 @@ class SummaryDetailView: UIView {
 
         leftTextLabel = SummaryDetailView.textLabel()
         leftTextLabel.textAlignment = .Left
+
+        leftTextLabel.autoSetDimension(.Width, toSize: 100.0)
+
         self.addSubview(leftTextLabel)
 
         leftDetailLabel = SummaryDetailView.detailLabel()
@@ -46,10 +53,6 @@ class SummaryDetailView: UIView {
         rightDetailLabel = SummaryDetailView.detailLabel()
         rightDetailLabel.textAlignment = .Right
         self.addSubview(rightDetailLabel)
-    }
-
-    required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     override func updateConstraints() {
@@ -66,7 +69,9 @@ class SummaryDetailView: UIView {
         rightDetailLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         rightTextLabel.autoPinEdge(.Right, toEdge: .Right, ofView: rightDetailLabel)
-        rightTextLabel.autoPinEdge(.Bottom, toEdge: .Top, ofView: rightDetailLabel, withOffset: 0.0)
+        rightTextLabel.autoAlignAxis(.Horizontal, toSameAxisOfView: leftTextLabel)
+
+        rightTextLabel.autoPinEdge(.Left, toEdge: .Right, ofView: leftTextLabel, withOffset: 5.0)
 
         super.updateConstraints()
     }
@@ -78,6 +83,8 @@ class SummaryDetailView: UIView {
         label.setTranslatesAutoresizingMaskIntoConstraints(false)
         label.textAlignment = .Center
         label.font = UIFont.systemFontOfSize(28.0)
+        label.minimumScaleFactor = 12.0 / 28.8
+        label.adjustsFontSizeToFitWidth = true
         label.backgroundColor = UIColor.clearColor()
         label.textColor = UIColor.darkGrayColor()
 

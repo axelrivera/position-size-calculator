@@ -18,6 +18,10 @@ struct Color {
         return UIColor.colorWithHex(0xF57900)
     }
 
+    static var chocolate: UIColor {
+        return UIColor.colorWithHex(0xC17D11)
+    }
+
     static var red: UIColor {
         return UIColor.colorWithHex(0xEF2929)
     }
@@ -42,12 +46,16 @@ struct Color {
         return UIColor.colorWithHex(0x5C3566)
     }
 
+    static var butter: UIColor {
+        return UIColor.colorWithHex(0xC4A000)
+    }
+
     static var highlight: UIColor {
         return purple
     }
 
     static var border: UIColor {
-        return ultraLightGray
+        return UIColor.colorWithHex(0xCCCCCC)
     }
 
     static var text: UIColor {

@@ -18,6 +18,10 @@ extension NSDecimalNumber {
         return NumberFormatter.percent.stringFromNumber(self)
     }
 
+    func doublePercentString() -> String {
+        return NumberFormatter.doubleDecimalPercent.stringFromNumber(self)
+    }
+
     func isEqualToDecimalNumber(number: NSDecimalNumber) -> Bool {
         return self.isEqualToNumber(number)
     }

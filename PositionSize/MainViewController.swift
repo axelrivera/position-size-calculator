@@ -12,7 +12,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     var settingsButton: UIButton!
     var accountSizeTitleLabel: UILabel!
-    var accountSizeButton: UIButton!
+    var accountSizeButton: CustomButton!
     var segmentedControl: UISegmentedControl!
     var investorHeader: StrikeHeaderView!
     var actionView: ActionView!
@@ -49,13 +49,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         self.view.addSubview(accountSizeTitleLabel)
 
-        accountSizeButton = UIButton.buttonWithType(.System) as UIButton
+        accountSizeButton = CustomButton(frame: CGRectZero)
         accountSizeButton.setTranslatesAutoresizingMaskIntoConstraints(false)
-
-        accountSizeButton.titleLabel.font = UIFont.systemFontOfSize(36.0)
-        accountSizeButton.titleLabel.textAlignment = .Center
-        accountSizeButton.titleLabel.minimumScaleFactor = 12.0 / 36.0;
-        accountSizeButton.titleLabel.adjustsFontSizeToFitWidth = true;
 
         accountSizeButton.addTarget(self, action: "accountSizeAction:", forControlEvents: .TouchUpInside)
 
@@ -95,6 +90,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
         summaryView = SummaryView(frame: CGRectZero)
         summaryView.setTranslatesAutoresizingMaskIntoConstraints(false)
 
+        summaryView.resetButton.addTarget(self, action: "resetAction:", forControlEvents: .TouchUpInside)
+
         self.view.addSubview(summaryView)
 
         let actionHeight = ceil(self.view.bounds.height * 0.34)
@@ -133,11 +130,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         summaryView.setStatus(.NotApproved)
 
-        summaryView.setShares("100")
-        summaryView.setTradeCost("$1,234.00")
-        summaryView.setAllowedShares("90")
-        summaryView.setAllowedTradeCost("$1,000.00")
-
         // Default Values
 
         updatePositionValues()
@@ -151,7 +143,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
     // MARK: - Public Methods
 
     func updatePositionValues() {
-        accountSizeButton.setTitle(position.accountSizeString(), forState: .Normal)
+        accountSizeButton.setTitle(position.accountSizeString())
 
         actionView.setRiskHeaderText(position.riskAmountString())
         actionView.setRiskText(position.riskPercentageString())
@@ -179,6 +171,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
                 summaryView.setAllowedShares(position.allowedNumberOfSharesString())
                 summaryView.setAllowedTradeCost(position.allowedTotalInvestmentString())
+
+                summaryView.setAllowedRiskPercent(position.allowedRiskPercentageString())
+                summaryView.setAllowedRisk(position.allowedRiskString())
             }
         } else {
             summaryView.setStatus(.None)
@@ -225,6 +220,12 @@ class MainViewController: UIViewController, ActionViewDelegate {
         updatePositionValues()
     }
 
+    func resetAction(sender: AnyObject!) {
+        summaryView.setStatus(.None)
+        position.resetValues()
+        updatePositionValues()
+    }
+
     // MARK: - ActionViewDelegate Methods
 
     func actionView(actionView: ActionView, didSelectButtonType buttonType: ActionViewButtonType) {
@@ -247,14 +248,15 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.minValue = 0.0
         config.maxValue = 10.0
         config.step = 0.25
-        config.percent = position.riskPercentage.floatValue * 100.0
+        config.percent = position.riskPercentage.doubleValue * 100.0
+        config.showDecimalValues = true
 
         let percentController = PercentViewController(config: config)
         percentController.modalTransitionStyle = .CrossDissolve
 
-        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Float) in
+        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
-                weakSelf.position.riskPercentage = NSDecimalNumber(float: percent / 100.0)
+                weakSelf.position.riskPercentage = NSDecimalNumber(double: percent / 100.0)
                 weakSelf.updatePositionValues()
 
                 weakSelf.dismissViewControllerAnimated(true, completion: nil)
@@ -275,14 +277,15 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.minValue = 0.0
         config.maxValue = 100.0
         config.step = 1.0
-        config.percent = position.maxPositionSize.floatValue * 100.0
+        config.percent = position.maxPositionSize.doubleValue * 100.0
+        config.showDecimalValues = false
 
         let percentController = PercentViewController(config: config)
         percentController.modalTransitionStyle = .CrossDissolve
 
-        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Float) in
+        percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
-                weakSelf.position.maxPositionSize = NSDecimalNumber(float: percent / 100.0)
+                weakSelf.position.maxPositionSize = NSDecimalNumber(double: percent / 100.0)
                 weakSelf.updatePositionValues()
 
                 weakSelf.dismissViewControllerAnimated(true, completion: nil)
