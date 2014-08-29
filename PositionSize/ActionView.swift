@@ -73,6 +73,7 @@ class ActionView: UIView {
         positionSizeTile.tag = ActionViewButtonType.PositionSize.toRaw()
         positionSizeTile.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
+        positionSizeTile.headerLabel.font = UIFont.boldSystemFontOfSize(11.0)
         positionSizeTile.footerLabel.text = "Maximum Position Size"
 
         self.addSubview(positionSizeTile)
@@ -85,6 +86,7 @@ class ActionView: UIView {
         entryTile.tag = ActionViewButtonType.Entry.toRaw()
         entryTile.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
+        entryTile.headerLabel.font = UIFont.boldSystemFontOfSize(11.0)
         entryTile.footerLabel.text = "Entry Price"
 
         self.addSubview(entryTile)
@@ -152,6 +154,10 @@ class ActionView: UIView {
         riskTile.headerLabel.text = text
     }
 
+    func setRiskHeaderAttributedText(text: NSAttributedString!) {
+        riskTile.headerLabel.attributedText = text
+    }
+
     func setRiskText(text: NSString!) {
         var string: String = "Select"
 
@@ -192,6 +198,10 @@ class ActionView: UIView {
 
     func setStopHeaderText(text: NSString!) {
         stopTile.headerLabel.text = text
+    }
+
+    func setStopHeaderAttributedText(text: NSAttributedString!) {
+        stopTile.headerLabel.attributedText = text
     }
 
     func setStopPriceText(text: NSString!) {

@@ -9,7 +9,7 @@
 import UIKit
 
 enum SummaryViewStatus {
-    case None, Approved, NotApproved
+    case None, Approved, NotApproved, Error
 }
 
 class SummaryView: UIView, UIScrollViewDelegate {
@@ -26,6 +26,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
     var tradePanel: SummaryDetailView!
     var allowedTradePanel: SummaryDetailView!
     var riskPanel: SummaryDetailView!
+    var errorPanel: SummaryMessageView!
 
     var scrollView: UIScrollView!
     var pageControl: UIPageControl!
@@ -69,6 +70,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
         tradePanel = SummaryDetailView(frame: CGRectZero)
         allowedTradePanel = SummaryDetailView(frame: CGRectZero)
         riskPanel = SummaryDetailView(frame: CGRectZero)
+        errorPanel = SummaryMessageView(frame: CGRectZero)
     }
 
     required init(coder aDecoder: NSCoder) {
@@ -95,14 +97,19 @@ class SummaryView: UIView, UIScrollViewDelegate {
         if updateScrollPanels {
             updateScrollPanels = false
 
-            if status == .NotApproved {
-                scrollView.contentSize = CGSizeMake(contentSize.width * 3.0, contentSize.height)
-                tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
-                allowedTradePanel.frame = CGRectMake(contentSize.width, 0.0, contentSize.width, contentSize.height)
-                riskPanel.frame = CGRectMake(contentSize.width * 2.0, 0.0, contentSize.width, contentSize.height)
-            } else {
+            if status == .Error {
                 scrollView.contentSize = contentSize
-                tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
+                errorPanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
+            } else {
+                if status == .NotApproved {
+                    scrollView.contentSize = CGSizeMake(contentSize.width * 3.0, contentSize.height)
+                    tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
+                    allowedTradePanel.frame = CGRectMake(contentSize.width, 0.0, contentSize.width, contentSize.height)
+                    riskPanel.frame = CGRectMake(contentSize.width * 2.0, 0.0, contentSize.width, contentSize.height)
+                } else {
+                    scrollView.contentSize = contentSize
+                    tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
+                }
             }
 
             scrollView.scrollRectToVisible(scrollFrame, animated: false)
@@ -124,7 +131,20 @@ class SummaryView: UIView, UIScrollViewDelegate {
             riskPanel.removeFromSuperview()
         }
 
-        if status == .NotApproved {
+        if let view = errorPanel.superview {
+            errorPanel.removeFromSuperview()
+        }
+
+        if status == .Error {
+            self.showResetButton(animated: false)
+
+            pageControl.numberOfPages = 1
+
+            errorPanel.titleLabel.text = "ERROR"
+            errorPanel.backgroundColor = Color.red
+
+            scrollView.addSubview(errorPanel)
+        } else if status == .NotApproved {
             self.showResetButton(animated: false)
 
             pageControl.numberOfPages = 3
@@ -175,41 +195,48 @@ class SummaryView: UIView, UIScrollViewDelegate {
             scrollView.addSubview(tradePanel)
         }
 
-        if status == .None {
-            tradePanel.titleLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
-            tradePanel.leftTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
-            tradePanel.leftDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
-            tradePanel.rightTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
-            tradePanel.rightDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
+        if status == .Error {
+            errorPanel.titleLabel.textColor = UIColor.whiteColor()
+            errorPanel.textLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+
+            scrollView.backgroundColor = errorPanel.backgroundColor
         } else {
-            tradePanel.titleLabel.textColor = UIColor.whiteColor()
-            tradePanel.leftTextLabel.textColor = UIColor.whiteColor()
-            tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
-            tradePanel.rightTextLabel.textColor = UIColor.whiteColor()
-            tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+            if status == .None {
+                tradePanel.titleLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+                tradePanel.leftTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+                tradePanel.leftDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
+                tradePanel.rightTextLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
+                tradePanel.rightDetailLabel.textColor = UIColor.whiteColor().colorWithAlphaComponent(0.3)
+            } else {
+                tradePanel.titleLabel.textColor = UIColor.whiteColor()
+                tradePanel.leftTextLabel.textColor = UIColor.whiteColor()
+                tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                tradePanel.rightTextLabel.textColor = UIColor.whiteColor()
+                tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
 
-            allowedTradePanel.titleLabel.textColor = UIColor.whiteColor()
-            allowedTradePanel.leftTextLabel.textColor = UIColor.whiteColor()
-            allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
-            allowedTradePanel.rightTextLabel.textColor = UIColor.whiteColor()
-            allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                allowedTradePanel.titleLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.leftTextLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                allowedTradePanel.rightTextLabel.textColor = UIColor.whiteColor()
+                allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
 
-            riskPanel.titleLabel.textColor = UIColor.whiteColor()
-            riskPanel.leftTextLabel.textColor = UIColor.whiteColor()
-            riskPanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
-            riskPanel.rightTextLabel.textColor = UIColor.whiteColor()
-            riskPanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                riskPanel.titleLabel.textColor = UIColor.whiteColor()
+                riskPanel.leftTextLabel.textColor = UIColor.whiteColor()
+                riskPanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
+                riskPanel.rightTextLabel.textColor = UIColor.whiteColor()
+                riskPanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.7)
 
-            if status == .Approved {
-                tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
-                tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
-            } else if status == .NotApproved {
-                allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
-                allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+                if status == .Approved {
+                    tradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+                    tradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+                } else if status == .NotApproved {
+                    allowedTradePanel.leftDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+                    allowedTradePanel.rightDetailLabel.textColor = UIColor(white: 1.0, alpha: 0.9)
+                }
             }
+            
+            scrollView.backgroundColor = tradePanel.backgroundColor
         }
-
-        scrollView.backgroundColor = tradePanel.backgroundColor
 
         updateScrollPanels = true
         self.setNeedsLayout()
@@ -237,6 +264,10 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
     func setAllowedRisk(risk: NSString!) {
         riskPanel.rightTextLabel.text = risk
+    }
+
+    func setErrorText(text: NSString!) {
+        errorPanel.textLabel.text = text
     }
 
     func showResetButton(#animated: Bool) {

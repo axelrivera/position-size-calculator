@@ -54,6 +54,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         accountSizeButton.addTarget(self, action: "accountSizeAction:", forControlEvents: .TouchUpInside)
 
+        accountSizeButton.autoSetDimension(.Height, toSize: 46.0)
+
         self.view.addSubview(accountSizeButton)
 
         let lineView = UIView(frame: CGRectZero)
@@ -145,7 +147,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func updatePositionValues() {
         accountSizeButton.setTitle(position.accountSizeString())
 
-        actionView.setRiskHeaderText(position.riskAmountString())
+        actionView.setRiskHeaderAttributedText(position.riskAmountAttributedString())
         actionView.setRiskText(position.riskPercentageString())
 
         actionView.setPositionSizeHeaderText(position.maxPositionSizeTotalString())
@@ -154,29 +156,40 @@ class MainViewController: UIViewController, ActionViewDelegate {
         actionView.setEntryHeaderText(position.tradeTypeString())
         actionView.setEntryPriceText(position.entryPriceString())
 
-        actionView.setStopHeaderText(position.riskPerShareString())
+        actionView.setStopHeaderAttributedText(position.riskPerShareAttributedString())
         actionView.setStopPriceText(position.stopPriceString())
 
-        if position.isReady {
-            if position.isApproved {
-                summaryView.setStatus(.Approved)
-
-                summaryView.setShares(position.numberOfSharesString())
-                summaryView.setTradeCost(position.totalInvestmentString())
-            } else {
-                summaryView.setStatus(.NotApproved)
-
-                summaryView.setShares(position.numberOfSharesString())
-                summaryView.setTradeCost(position.totalInvestmentString())
-
-                summaryView.setAllowedShares(position.allowedNumberOfSharesString())
-                summaryView.setAllowedTradeCost(position.allowedTotalInvestmentString())
-
-                summaryView.setAllowedRiskPercent(position.allowedRiskPercentageString())
-                summaryView.setAllowedRisk(position.allowedRiskString())
-            }
-        } else {
+        if !position.isPartiallyReady {
             summaryView.setStatus(.None)
+        } else {
+            let isValid = position.isValid
+            
+            if !isValid.valid {
+                summaryView.setStatus(.Error)
+                summaryView.setErrorText(isValid.errorMessage)
+            } else {
+                if position.isReady {
+                    if position.isApproved {
+                        summaryView.setStatus(.Approved)
+
+                        summaryView.setShares(position.numberOfSharesString())
+                        summaryView.setTradeCost(position.totalInvestmentString())
+                    } else {
+                        summaryView.setStatus(.NotApproved)
+
+                        summaryView.setShares(position.numberOfSharesString())
+                        summaryView.setTradeCost(position.totalInvestmentString())
+
+                        summaryView.setAllowedShares(position.allowedNumberOfSharesString())
+                        summaryView.setAllowedTradeCost(position.allowedTotalInvestmentString())
+
+                        summaryView.setAllowedRiskPercent(position.allowedRiskPercentageString())
+                        summaryView.setAllowedRisk(position.allowedRiskString())
+                    }
+                } else {
+                    summaryView.setStatus(.None)
+                }
+            }
         }
     }
 
@@ -190,14 +203,13 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func accountSizeAction(sender: AnyObject!) {
-        var config = PriceConfig(header: "Account Size")
-        config.priceType = .Account
+        var config = BalanceConfig(header: "Account Size")
         config.defaultPrice = position.accountSize
 
-        let priceController = PriceViewController(config: config)
+        let priceController = BalanceViewController(config: config)
         priceController.modalTransitionStyle = .CrossDissolve
 
-        priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
+        priceController.saveBlock = { [weak self] (controller: BalanceViewController, price: NSDecimalNumber) in
             if let weakSelf = self {
                 weakSelf.position.accountSize = price
                 weakSelf.updatePositionValues()
@@ -206,7 +218,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
             }
         }
 
-        priceController.cancelBlock = { [weak self] (controller: PriceViewController) in
+        priceController.cancelBlock = { [weak self] (controller: BalanceViewController) in
             if let weakSelf = self {
                 weakSelf.dismissViewControllerAnimated(true, completion: nil)
             }
@@ -252,7 +264,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.showDecimalValues = true
 
         let percentController = PercentViewController(config: config)
-        percentController.modalTransitionStyle = .CrossDissolve
 
         percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
@@ -281,7 +292,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.showDecimalValues = false
 
         let percentController = PercentViewController(config: config)
-        percentController.modalTransitionStyle = .CrossDissolve
 
         percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
@@ -308,7 +318,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.defaultPrice = position.entryPrice
 
         let priceController = PriceViewController(config: config)
-        priceController.modalTransitionStyle = .CrossDissolve
 
         priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
             if let weakSelf = self {
@@ -335,7 +344,6 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.defaultPrice = position.stopPrice
 
         let priceController = PriceViewController(config: config)
-        priceController.modalTransitionStyle = .CrossDissolve
 
         priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
             if let weakSelf = self {

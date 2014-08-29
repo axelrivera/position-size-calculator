@@ -42,6 +42,8 @@ class ActionTileView: UIControl {
         headerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         headerLabel.textAlignment = .Center
         headerLabel.font = UIFont.systemFontOfSize(11.0)
+        headerLabel.minimumScaleFactor = 9.0 / 11.0
+        headerLabel.adjustsFontSizeToFitWidth = true
         headerLabel.backgroundColor = UIColor.clearColor()
         headerLabel.textColor = Color.header
 
@@ -61,7 +63,9 @@ class ActionTileView: UIControl {
         footerLabel = UILabel(frame: CGRectZero)
         footerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         footerLabel.textAlignment = .Center
-        footerLabel.font = UIFont.systemFontOfSize(11.0)
+        footerLabel.font = UIFont.systemFontOfSize(12.0)
+        footerLabel.minimumScaleFactor = 9.0 / 12.0
+        footerLabel.adjustsFontSizeToFitWidth = true
         footerLabel.backgroundColor = UIColor.clearColor()
         footerLabel.textColor = Color.text
 

@@ -1,31 +1,18 @@
 //
-//  PriceViewController.swift
+//  BalanceViewController.swift
 //  PositionSize
 //
-//  Created by Axel Rivera on 8/24/14.
+//  Created by Axel Rivera on 8/28/14.
 //  Copyright (c) 2014 Axel Rivera. All rights reserved.
 //
 
 import UIKit
 
-enum PriceType {
-    case Entry
-    case Stop
-    case Account
-}
-
-struct PriceConfig {
-    var priceType: PriceType = .Entry
+struct BalanceConfig {
     var header: String!
-    var tradeType: TradeType = .None
     var defaultPrice: NSDecimalNumber!
 
-    var maxDigits: Int {
-        get {
-            return priceType == .Account ? 12 : 9
-        }
-    }
-
+    static let maxDigits = 12
     static let currencyScale = -2
 
     init(header: String!) {
@@ -33,30 +20,28 @@ struct PriceConfig {
     }
 }
 
-class PriceViewController: UIViewController, UITextFieldDelegate {
+class BalanceViewController: UIViewController, UITextFieldDelegate {
 
     var headerLabel: UILabel!
     var textField: UITextField!
 
-    var tradeTypeLabel: UILabel!
-    var tradeTypeSegmentedControl: UISegmentedControl!
-
+    var clearButton: UIButton!
     var saveButton: UIButton!
     var cancelButton: UIButton!
 
-    let config: PriceConfig!
+    let config: BalanceConfig!
 
     var digits: String!
     var price: NSDecimalNumber = NSDecimalNumber.zero()
 
-    var cancelBlock: ((controller: PriceViewController) -> Void)?
-    var saveBlock: ((controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) -> Void)?
+    var cancelBlock: ((controller: BalanceViewController) -> Void)?
+    var saveBlock: ((controller: BalanceViewController, price: NSDecimalNumber) -> Void)?
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    init(config: PriceConfig) {
+    init(config: BalanceConfig) {
         super.init(nibName: nil, bundle: nil)
         self.config = config
 
@@ -65,72 +50,58 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
 
     override func loadView() {
         self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = Color.background
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if let tmp = config.defaultPrice {
-            price = tmp
-        }
+        price = config.defaultPrice
 
         headerLabel = UILabel(frame: CGRectZero)
         headerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
-        headerLabel.textColor = Color.darkGray
+        headerLabel.font = UIFont.systemFontOfSize(12.0)
+        headerLabel.textColor = Color.text
         headerLabel.backgroundColor = UIColor.clearColor()
-        headerLabel.font = UIFont.systemFontOfSize(20.0)
-        headerLabel.textAlignment = .Center
+        headerLabel.textAlignment = .Left
 
-        headerLabel.text = config.header
+        headerLabel.text = "Account Size"
 
         self.view.addSubview(headerLabel)
 
         textField = UITextField(frame: CGRectZero)
         textField.setTranslatesAutoresizingMaskIntoConstraints(false)
-        textField.font = UIFont.systemFontOfSize(32.0)
+        textField.font = UIFont.systemFontOfSize(36.0)
         textField.textAlignment = .Center
+        textField.textColor = Color.header
         textField.placeholder = NSDecimalNumber.zero().currencyString()
-        textField.clearButtonMode = .WhileEditing
         textField.keyboardType = .NumberPad
-        textField.backgroundColor = UIColor.whiteColor()
+        textField.backgroundColor = UIColor.clearColor()
         textField.textColor = Color.text
         textField.contentVerticalAlignment = .Center
         textField.adjustsFontSizeToFitWidth = true
-        textField.minimumFontSize = 20.0
+        textField.minimumFontSize = 12.0
 
         textField.delegate = self
 
-        textField.autoSetDimension(.Height, toSize: 50.0)
-
-        textField.layer.cornerRadius = 4.0
+        textField.autoSetDimension(.Height, toSize: 46.0)
 
         self.view.addSubview(textField)
 
-        if config.priceType == .Entry {
-            tradeTypeLabel = UILabel(frame: CGRectZero)
-            tradeTypeLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
-            tradeTypeLabel.backgroundColor = UIColor.clearColor()
-            tradeTypeLabel.font = UIFont.systemFontOfSize(16.0)
-            tradeTypeLabel.textColor = Color.text
+        let lineView = UIView(frame: CGRectZero)
+        lineView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        lineView.backgroundColor = Color.border
 
-            tradeTypeLabel.text = "Type of Trade?"
+        lineView.autoSetDimension(.Height, toSize: 0.5)
 
-            self.view.addSubview(tradeTypeLabel)
+        self.view.addSubview(lineView)
 
-            tradeTypeSegmentedControl = UISegmentedControl(items: [ "Long", "Short" ])
-            tradeTypeSegmentedControl.setTranslatesAutoresizingMaskIntoConstraints(false)
-            tradeTypeSegmentedControl.setWidth(70.0, forSegmentAtIndex: 0)
-            tradeTypeSegmentedControl.setWidth(70.0, forSegmentAtIndex: 1)
+        clearButton = UIButton.buttonWithType(.System) as UIButton
+        clearButton.setTranslatesAutoresizingMaskIntoConstraints(false)
+        clearButton.setTitle("Clear Account Size", forState: .Normal)
 
-            if (config.tradeType == TradeType.Short) {
-                tradeTypeSegmentedControl.selectedSegmentIndex = 1
-            } else {
-                tradeTypeSegmentedControl.selectedSegmentIndex = 0
-            }
+        clearButton.addTarget(self, action: "clearAction:", forControlEvents: .TouchUpInside)
 
-            self.view.addSubview(tradeTypeSegmentedControl)
-        }
+        self.view.addSubview(clearButton)
 
         cancelButton = UIButton.roundedButton(color: Color.gray)
         cancelButton.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -149,33 +120,26 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
         saveButton.addTarget(self, action: "saveAction:", forControlEvents: .TouchUpInside)
 
         saveButton.autoSetDimension(.Height, toSize: 37.0)
-
+        
         self.view.addSubview(saveButton)
 
         // AutoLayout
 
-        headerLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 20.0)
+        headerLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 10.0)
         headerLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
-        headerLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
-        textField.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
-        textField.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
-        textField.autoPinEdge(.Top, toEdge: .Bottom, ofView: headerLabel, withOffset: 15.0)
+        textField.autoPinEdge(.Top, toEdge: .Bottom, ofView: headerLabel, withOffset: 8.0)
+        textField.autoPinEdgeToSuperviewEdge(.Left, withInset: 20.0)
+        textField.autoPinEdgeToSuperviewEdge(.Right, withInset: 20.0)
 
-        if config.priceType == .Entry {
-            tradeTypeLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: textField, withOffset: 20.0)
-            tradeTypeLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
+        lineView.autoPinEdge(.Top, toEdge: .Bottom, ofView: textField, withOffset: 5.0)
+        lineView.autoPinEdgeToSuperviewEdge(.Left, withInset: 0.0)
+        lineView.autoPinEdgeToSuperviewEdge(.Right, withInset: 0.0)
 
-            tradeTypeSegmentedControl.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
-            tradeTypeSegmentedControl.autoAlignAxis(.Horizontal, toSameAxisOfView: tradeTypeLabel)
+        clearButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: lineView, withOffset: 10.0)
+        clearButton.autoAlignAxisToSuperviewAxis(.Vertical)
 
-            tradeTypeLabel.autoPinEdge(.Right, toEdge: .Left, ofView: tradeTypeSegmentedControl, withOffset: 10.0)
-
-            cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: tradeTypeLabel, withOffset: 30.0)
-        } else {
-            cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: textField, withOffset: 30.0)
-        }
-
+        cancelButton.autoPinEdge(.Top, toEdge: .Bottom, ofView: clearButton, withOffset: 20.0)
         cancelButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
         cancelButton.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
 
@@ -198,7 +162,7 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     // MARK: - Public Methods
 
     func setDefaultValues() {
@@ -219,21 +183,14 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
     func saveAction(sender: AnyObject!) {
         self.view.endEditing(true)
 
-        var tradeType: TradeType
-
-        if config.priceType == .Entry {
-            if (tradeTypeSegmentedControl.selectedSegmentIndex == 1) {
-                tradeType = .Short
-            } else {
-                tradeType = .Long
-            }
-        } else {
-            tradeType = .None
-        }
-
         if let block = saveBlock {
-            block(controller: self, price: price, tradeType: tradeType)
+            block(controller: self, price: price)
         }
+    }
+
+    func clearAction(sender: AnyObject!) {
+        textField.text = ""
+        setDefaultValues()
     }
 
     // MARK: - UITextFieldDelegate Methods
@@ -252,7 +209,7 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
         }
 
         if countElements(string) > 0 {
-            if countElements(digits) + 1 <= config.maxDigits {
+            if countElements(digits) + 1 <= BalanceConfig.maxDigits {
                 digits = digits.stringByAppendingString(string)
             }
         } else {
@@ -268,7 +225,7 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
         var number = NSDecimalNumber.zero()
         if digits != "" {
             let decimal = NSDecimalNumber(string: digits)
-            number = decimal.decimalNumberByMultiplyingByPowerOf10(Int16(PriceConfig.currencyScale))
+            number = decimal.decimalNumberByMultiplyingByPowerOf10(Int16(BalanceConfig.currencyScale))
         }
 
         price = number
@@ -281,5 +238,5 @@ class PriceViewController: UIViewController, UITextFieldDelegate {
         setDefaultValues()
         return true
     }
-    
+
 }

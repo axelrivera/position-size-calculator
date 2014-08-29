@@ -26,6 +26,47 @@ class Position {
         }
     }
 
+    var isPartiallyReady: Bool {
+        get {
+            return !accountSize.isEqualToZero() && !riskPercentage.isEqualToZero() && !maxPositionSize.isEqualToZero()
+        }
+    }
+
+    var isValid: (valid: Bool, errorMessage: String!) {
+        get {
+            var  error = false
+            var string: String!
+
+            let entry = entryPrice
+            let stop = stopPrice
+
+            if entry.isEqualToZero() || stop.isEqualToZero() {
+                return (true, nil)
+            }
+
+            if entry.isEqualToDecimalNumber(stop) {
+                error = true
+                string = "Entry Price and Stop Loss Price cannot be the same."
+            }
+
+            if !error {
+                if tradeType == TradeType.Long {
+                    if entry.isLessThanDecimalNumber(stop) {
+                        error = true
+                        string = "In Long positions the Stop Loss Price should be below the Entry Price."
+                    }
+                } else {
+                    if entry.isGreaterThanDecimalNumber(stop) {
+                        error = true
+                        string = "In Short positions the Stop Loss Price should be above the Entry Price."
+                    }
+                }
+            }
+
+            return (!error, string)
+        }
+    }
+
     var isApproved: Bool {
         get {
             let ready = isReady
@@ -38,6 +79,12 @@ class Position {
             let investment = totalInvestment()
 
             if positionSize == nil || investment == nil {
+                return false
+            }
+
+            let shares = numberOfShares()
+
+            if shares == nil || shares.isEqualToZero() {
                 return false
             }
 
@@ -116,6 +163,32 @@ class Position {
         return amount == nil ? nil : "Risk = \(amount.currencyString())"
     }
 
+    func riskAmountAttributedString() -> NSAttributedString! {
+        let string: NSString! = riskAmountString() as NSString!
+
+        if string == nil {
+            return nil
+        }
+
+        var attributedString = NSMutableAttributedString(string: string)
+
+        if let risk = riskAmount() {
+            let riskStr = risk.currencyString()
+            let range = string.rangeOfString(riskStr)
+
+            let color = risk.isLessThanDecimalNumber(NSDecimalNumber.zero()) ? Color.red : Color.header
+
+            let attributes = [
+                NSFontAttributeName : UIFont.boldSystemFontOfSize(11.0),
+                NSForegroundColorAttributeName : color
+            ]
+
+            attributedString.addAttributes(attributes, range: range)
+        }
+        
+        return attributedString
+    }
+
     func riskPerShare() -> NSDecimalNumber! {
         if entryPrice.isEqualToZero() || stopPrice.isEqualToZero() {
             return nil
@@ -142,6 +215,32 @@ class Position {
     func riskPerShareString() -> String! {
         let risk = riskPerShare()
         return risk == nil ? nil : "1R = \(risk.currencyString())"
+    }
+
+    func riskPerShareAttributedString() -> NSAttributedString! {
+        let string: NSString! = riskPerShareString() as NSString!
+
+        if string == nil {
+            return nil
+        }
+
+        var attributedString = NSMutableAttributedString(string: string)
+
+        if let risk = riskPerShare() {
+            let riskStr = risk.currencyString()
+            let range = string.rangeOfString(riskStr)
+
+            let color = risk.isLessThanDecimalNumber(NSDecimalNumber.zero()) ? Color.red : Color.header
+
+            let attributes = [
+                NSFontAttributeName : UIFont.boldSystemFontOfSize(11.0),
+                NSForegroundColorAttributeName : color
+            ]
+
+            attributedString.addAttributes(attributes, range: range)
+        }
+
+        return attributedString
     }
 
     func numberOfShares() -> NSDecimalNumber! {

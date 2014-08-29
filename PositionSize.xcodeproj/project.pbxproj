@@ -19,6 +19,8 @@
 		16A043F319AAA6C60032C6E3 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F219AAA6C60032C6E3 /* Position.swift */; };
 		16A043F519AAAE6A0032C6E3 /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F419AAAE6A0032C6E3 /* NumberFormatter.swift */; };
 		16A043F719AAAF0E0032C6E3 /* DecimalNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F619AAAF0E0032C6E3 /* DecimalNumber.swift */; };
+		16AB2CE819AFF821004E0761 /* BalanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB2CE719AFF821004E0761 /* BalanceViewController.swift */; };
+		16AB2CEA19B0257A004E0761 /* SummaryMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB2CE919B0257A004E0761 /* SummaryMessageView.swift */; };
 		16ADBF8E19A936DD002C37FB /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF8D19A936DD002C37FB /* Color.swift */; };
 		16ADBF9019A93718002C37FB /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF8F19A93718002C37FB /* UIColor+Hex.swift */; };
 		16ADBF9319A94FE5002C37FB /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF9219A94FE5002C37FB /* AppConfig.swift */; };
@@ -59,6 +61,8 @@
 		16A043F219AAA6C60032C6E3 /* Position.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
 		16A043F419AAAE6A0032C6E3 /* NumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
 		16A043F619AAAF0E0032C6E3 /* DecimalNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecimalNumber.swift; sourceTree = "<group>"; };
+		16AB2CE719AFF821004E0761 /* BalanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceViewController.swift; sourceTree = "<group>"; };
+		16AB2CE919B0257A004E0761 /* SummaryMessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryMessageView.swift; sourceTree = "<group>"; };
 		16ADBF8D19A936DD002C37FB /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		16ADBF8F19A93718002C37FB /* UIColor+Hex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		16ADBF9219A94FE5002C37FB /* AppConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
@@ -99,6 +103,7 @@
 				16F23F96199DA1A6003EE89B /* SettingsViewController.swift */,
 				16ADBF9419A9915F002C37FB /* PercentViewController.swift */,
 				16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */,
+				16AB2CE719AFF821004E0761 /* BalanceViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -201,6 +206,7 @@
 				16C2EF3D199EEE300060D093 /* ActionView.swift */,
 				1696DF5B19A06FBC0071219A /* SummaryView.swift */,
 				160E313519A2E8250004D44B /* SummaryDetailView.swift */,
+				16AB2CE919B0257A004E0761 /* SummaryMessageView.swift */,
 				169A3D2B19AED83500E6B707 /* CustomButton.swift */,
 			);
 			name = Views;
@@ -356,6 +362,7 @@
 				168BF8EC199BB2630024E4FC /* AppDelegate.swift in Sources */,
 				16F23F9A199DAE5E003EE89B /* StrikeHeaderView.swift in Sources */,
 				16A043F519AAAE6A0032C6E3 /* NumberFormatter.swift in Sources */,
+				16AB2CE819AFF821004E0761 /* BalanceViewController.swift in Sources */,
 				16A043EB19AA58C40032C6E3 /* ActionTileView.swift in Sources */,
 				16ADBF9519A9915F002C37FB /* PercentViewController.swift in Sources */,
 				16ADBF9019A93718002C37FB /* UIColor+Hex.swift in Sources */,
@@ -367,6 +374,7 @@
 				16ADBF9919A9986A002C37FB /* Button.swift in Sources */,
 				160E313619A2E8250004D44B /* SummaryDetailView.swift in Sources */,
 				16A043F319AAA6C60032C6E3 /* Position.swift in Sources */,
+				16AB2CEA19B0257A004E0761 /* SummaryMessageView.swift in Sources */,
 				16A043ED19AA6F9A0032C6E3 /* PriceViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

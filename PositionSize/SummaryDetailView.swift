@@ -68,10 +68,10 @@ class SummaryDetailView: UIView {
         rightDetailLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 20.0)
         rightDetailLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
-        rightTextLabel.autoPinEdge(.Right, toEdge: .Right, ofView: rightDetailLabel)
+        rightTextLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
         rightTextLabel.autoAlignAxis(.Horizontal, toSameAxisOfView: leftTextLabel)
 
-        rightTextLabel.autoPinEdge(.Left, toEdge: .Right, ofView: leftTextLabel, withOffset: 5.0)
+        rightTextLabel.autoMatchDimension(.Width, toDimension: .Width, ofView: leftTextLabel, withMultiplier: 1.75)
 
         super.updateConstraints()
     }
