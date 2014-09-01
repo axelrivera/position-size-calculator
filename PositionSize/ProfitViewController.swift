@@ -167,7 +167,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
                 decorationColor = Color.darkRed
                 perShare = breakevenPrice.decimalNumberBySubtracting(risk)
                 totalColor = Color.darkRed
-                totalTitle = "Expected Loss"
+                totalTitle = "Potential Loss"
             } else {
                 decorationStr = "\(i)R"
                 decorationColor = Color.darkGreen
