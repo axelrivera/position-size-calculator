@@ -273,17 +273,18 @@ class Position {
     }
 
     func allowedNumberOfShares() -> NSDecimalNumber! {
-        let approved = isApproved
+        let positionSize = maxPositionSizeTotal()
+        let investment = totalInvestment()
+
+        if positionSize == nil || investment == nil {
+            return nil
+        }
+
+        let approved = investment.isLessThanOrEqualToDecimalNumber(positionSize)
 
         if approved {
-            return nil
+            return numberOfShares()
         }
-
-        if entryPrice.isEqualToZero() {
-            return nil
-        }
-
-        let positionSize = maxPositionSizeTotal()
 
         let roundingMode = NSRoundingMode.RoundDown
 
@@ -295,7 +296,9 @@ class Position {
             raiseOnUnderflow: true,
             raiseOnDivideByZero: false)
 
-        let shares = positionSize.decimalNumberByDividingBy(entryPrice, withBehavior: handler)
+        let netInvestment = positionSize.decimalNumberBySubtracting(AppConfig.totalCommissions)
+        let shares = netInvestment.decimalNumberByDividingBy(entryPrice, withBehavior: handler)
+        
         println("allowed shares: \(shares)")
 
         return shares
@@ -317,7 +320,12 @@ class Position {
             return nil
         }
 
-        return shares.decimalNumberByMultiplyingBy(entryPrice)
+        let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
+
+        println("total investment: \(investment)")
+        println("total commissions: \(AppConfig.totalCommissions)")
+
+        return investment.decimalNumberByAdding(AppConfig.totalCommissions)
     }
 
     func totalInvestmentString() -> String! {
@@ -336,7 +344,12 @@ class Position {
             return nil
         }
 
-        return shares.decimalNumberByMultiplyingBy(entryPrice)
+        let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
+
+        println("total investment: \(investment)")
+        println("total commissions: \(AppConfig.totalCommissions)")
+
+        return investment.decimalNumberByAdding(AppConfig.totalCommissions)
      }
 
     func allowedTotalInvestmentString() -> String! {
@@ -374,6 +387,17 @@ class Position {
     func allowedRiskPercentageString() -> String! {
         let percent = allowedRiskPercentage()
         return percent == nil ? NSDecimalNumber.zero().percentString() : percent.percentString()
+    }
+
+    func breakevenPricePerShare() -> NSDecimalNumber! {
+        let shares = allowedNumberOfShares()
+        let investment = allowedTotalInvestment()
+
+        if shares == nil || shares.isEqualToZero() {
+            return nil
+        }
+
+        return investment.decimalNumberByDividingBy(shares)
     }
 
     // MARK: -

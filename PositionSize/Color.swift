@@ -14,6 +14,10 @@ struct Color {
         return UIColor.colorWithHex(0x4CD964)
     }
 
+    static var darkGreen: UIColor {
+        return UIColor.colorWithHex(0x4E9A06)
+    }
+
     static var orange: UIColor {
         return UIColor.colorWithHex(0xF57900)
     }
@@ -24,6 +28,10 @@ struct Color {
 
     static var red: UIColor {
         return UIColor.colorWithHex(0xEF2929)
+    }
+
+    static var darkRed: UIColor {
+        return UIColor.colorWithHex(0xA40000)
     }
 
     static var ultraLightGray: UIColor {
@@ -44,6 +52,10 @@ struct Color {
 
     static var purple: UIColor {
         return UIColor.colorWithHex(0x5C3566)
+    }
+
+    static var lightButter: UIColor {
+        return UIColor.colorWithHex(0xFCE94F)
     }
 
     static var butter: UIColor {

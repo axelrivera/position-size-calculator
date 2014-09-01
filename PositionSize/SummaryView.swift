@@ -18,9 +18,11 @@ class SummaryView: UIView, UIScrollViewDelegate {
         static let verticalPadding: CGFloat = 10.0
         static let horizontalPadding: CGFloat = 10.0
         static let nameHeight: CGFloat = 18.0
-        static let resetButtonSize: CGSize = CGSizeMake(22.0, 27.0)
+        static let profitButtonSize: CGSize = CGSizeMake(31.0, 22.0)
+        static let resetButtonSize: CGSize = CGSizeMake(20.0, 25.0)
     }
 
+    var profitButton: UIButton!
     var resetButton: UIButton!
 
     var tradePanel: SummaryDetailView!
@@ -61,6 +63,12 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
         self.addSubview(pageControl)
 
+        profitButton = UIButton.buttonWithType(.System) as UIButton
+        profitButton.setImage(UIImage(named: "money"), forState: .Normal)
+        profitButton.tintColor = UIColor.whiteColor()
+
+        self.addSubview(profitButton)
+
         resetButton = UIButton.buttonWithType(.System) as UIButton
         resetButton.setImage(UIImage(named: "reload"), forState: .Normal)
         resetButton.tintColor = UIColor.whiteColor()
@@ -84,7 +92,13 @@ class SummaryView: UIView, UIScrollViewDelegate {
         let scrollFrame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
         let pageFrame = CGRectMake(0.0, contentSize.height - 20.0, contentSize.width, 20.0)
 
-        let buttonFrame = CGRectMake(
+        let profitButtonFrame = CGRectMake(
+            15.0,
+            9.0,
+            Config.profitButtonSize.width,
+            Config.profitButtonSize.height)
+
+        let resetButtonFrame = CGRectMake(
             contentSize.width - (Config.resetButtonSize.width + 15.0),
             7.0,
             Config.resetButtonSize.width,
@@ -92,7 +106,8 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
         scrollView.frame = scrollFrame
         pageControl.frame = pageFrame
-        resetButton.frame = buttonFrame
+        profitButton.frame = profitButtonFrame
+        resetButton.frame = resetButtonFrame
 
         if updateScrollPanels {
             updateScrollPanels = false
@@ -137,6 +152,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
         if status == .Error {
             self.showResetButton(animated: false)
+            self.hideProfitButton(animated: false)
 
             pageControl.numberOfPages = 1
 
@@ -146,6 +162,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
             scrollView.addSubview(errorPanel)
         } else if status == .NotApproved {
             self.showResetButton(animated: false)
+            self.showProfitButton(animated: false)
 
             pageControl.numberOfPages = 3
 
@@ -177,11 +194,13 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
             if status == .Approved {
                 self.showResetButton(animated: false)
+                self.showProfitButton(animated: false)
 
                 tradePanel.titleLabel.text = "APPROVED"
                 tradePanel.backgroundColor = Color.green
             } else {
                 self.hideResetButton(animated: false)
+                self.hideProfitButton(animated: false)
 
                 tradePanel.titleLabel.text = "RESULTS"
                 tradePanel.leftTextLabel.text = "0"
@@ -270,15 +289,29 @@ class SummaryView: UIView, UIScrollViewDelegate {
         errorPanel.textLabel.text = text
     }
 
+    func showProfitButton(#animated: Bool) {
+        let duration = animated ? 0.3 : 0.0
+        UIView.animateWithDuration(duration, animations: { () -> Void in
+            self.profitButton.alpha = 1.0
+        })
+    }
+
+    func hideProfitButton(#animated: Bool) {
+        let duration = animated ? 0.1 : 0.0
+        UIView.animateWithDuration(duration, animations: { () -> Void in
+            self.profitButton.alpha = 0.0
+        })
+    }
+
     func showResetButton(#animated: Bool) {
-        let duration = animated ? 0.2 : 0.0
+        let duration = animated ? 0.3 : 0.0
         UIView.animateWithDuration(duration, animations: { () -> Void in
             self.resetButton.alpha = 1.0
         })
     }
 
     func hideResetButton(#animated: Bool) {
-        let duration = animated ? 0.2 : 0.0
+        let duration = animated ? 0.1 : 0.0
         UIView.animateWithDuration(duration, animations: { () -> Void in
             self.resetButton.alpha = 0.0
         })
@@ -294,6 +327,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
         frame.origin.y = 0.0
 
         self.hideResetButton(animated: true)
+        self.hideProfitButton(animated: true)
 
         scrollView.scrollRectToVisible(frame, animated: true)
         pageControlUsed = true;
@@ -303,15 +337,18 @@ class SummaryView: UIView, UIScrollViewDelegate {
 
     func scrollViewWillBeginDragging(scrollView: UIScrollView!) {
         self.hideResetButton(animated: true)
+        self.hideProfitButton(animated: true)
     }
 
     func scrollViewDidEndDecelerating(scrollView: UIScrollView!) {
         self.showResetButton(animated: true)
+        self.showProfitButton(animated: true)
         pageControlUsed = false
     }
 
     func scrollViewDidEndScrollingAnimation(scrollView: UIScrollView!) {
         self.showResetButton(animated: true)
+        self.showProfitButton(animated: true)
         pageControlUsed = false
     }
 

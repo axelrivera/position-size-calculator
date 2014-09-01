@@ -29,7 +29,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
         super.viewDidLoad()
 
         position = Position()
-        position.updateValuesForTraderProfile(AppConfig.defaultTraderProfile())
+        position.entryPrice = NSDecimalNumber(double: 25.0)
+        position.stopPrice = NSDecimalNumber(double: 24.0)
+        position.updateValuesForTraderProfile(AppConfig.defaultTraderProfile)
 
         settingsButton = UIButton.buttonWithType(.System) as UIButton!
         settingsButton.setImage(UIImage(named: "settings"), forState: .Normal)
@@ -92,6 +94,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         summaryView = SummaryView(frame: CGRectZero)
         summaryView.setTranslatesAutoresizingMaskIntoConstraints(false)
 
+        summaryView.profitButton.addTarget(self, action: "profitAction:", forControlEvents: .TouchUpInside)
         summaryView.resetButton.addTarget(self, action: "resetAction:", forControlEvents: .TouchUpInside)
 
         self.view.addSubview(summaryView)
@@ -145,6 +148,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
     // MARK: - Public Methods
 
     func updatePositionValues() {
+        println("commissions enabled: \(AppConfig.enableCommisions)")
+        println("entry commission: \(AppConfig.entryCommission), exit commission: \(AppConfig.exitCommission)")
+
         accountSizeButton.setTitle(position.accountSizeString())
 
         actionView.setRiskHeaderAttributedText(position.riskAmountAttributedString())
@@ -230,6 +236,13 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func segmentedControlChanged(segmentedControl: UISegmentedControl!) {
         position.updateValuesForTraderProfile(AppConfig.traderProfileForIndex(segmentedControl.selectedSegmentIndex))
         updatePositionValues()
+    }
+
+    func profitAction(sender: AnyObject!) {
+        let profitController = ProfitViewController(position: position)
+        let navController = UINavigationController(rootViewController: profitController)
+
+        self.presentViewController(navController, animated: true, completion: nil)
     }
 
     func resetAction(sender: AnyObject!) {
