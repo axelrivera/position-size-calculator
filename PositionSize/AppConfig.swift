@@ -29,6 +29,7 @@ struct AppDefaults {
     static let moderatePositionSize: Double = 0.15
     static let conservativeRiskPercentage: Double = 0.01
     static let conservativePositionSize: Double = 0.1
+    static let profitLossRMultiple: Double = 10
 }
 
 struct UserKeys {
@@ -42,6 +43,7 @@ struct UserKeys {
     static let moderatePositionSize = "PSUserKeyModeratePositionSize"
     static let conservativeRiskPercentage = "PSUserKeyConservativeRiskPercentage"
     static let conservativePositionSize = "PSUserKeyConservativePositionSize"
+    static let profitLossRMultiple = "PSUserKeyProfitLossRMultiple"
 }
 
 class AppConfig {
@@ -140,7 +142,7 @@ class AppConfig {
         get {
             var number: NSDecimalNumber!
 
-            if let tmp = userDefaults.objectForKey(UserKeys.exitCommission) as NSNumber! {
+            if let tmp = userDefaults.objectForKey(UserKeys.aggressiveRiskPercentage) as NSNumber! {
                 number = NSDecimalNumber(double: tmp.doubleValue)
             } else {
                 number = NSDecimalNumber(double: AppDefaults.aggressiveRiskPercentage)
@@ -241,6 +243,24 @@ class AppConfig {
 
         set(newValue) {
             setUserDefaultValue(newValue as NSNumber!, forKey: UserKeys.conservativePositionSize)
+        }
+    }
+
+    class var profitLossRMultiple: Double {
+        get {
+            var number: NSNumber!
+
+            if let tmp = userDefaults.objectForKey(UserKeys.profitLossRMultiple) as NSNumber! {
+                number = tmp
+            } else {
+                number = NSNumber(double: AppDefaults.profitLossRMultiple)
+            }
+
+            return number.doubleValue
+        }
+
+        set(newValue) {
+            setUserDefaultValue(newValue as NSNumber!, forKey: UserKeys.profitLossRMultiple)
         }
     }
 

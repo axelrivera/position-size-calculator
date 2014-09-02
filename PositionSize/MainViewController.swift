@@ -47,7 +47,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         accountSizeTitleLabel.backgroundColor = UIColor.clearColor()
         accountSizeTitleLabel.textAlignment = .Left
 
-        accountSizeTitleLabel.text = "Account Size"
+        accountSizeTitleLabel.text = "Account Balance"
 
         self.view.addSubview(accountSizeTitleLabel)
 
@@ -105,7 +105,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         // AutoLayout
 
-        settingsButton.autoPinToTopLayoutGuideOfViewController(self, withInset: 15.0)
+        settingsButton.autoPinToTopLayoutGuideOfViewController(self, withInset: 10.0)
         settingsButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         accountSizeTitleLabel.autoPinToTopLayoutGuideOfViewController(self, withInset: 10.0)
@@ -203,6 +203,14 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
     func settingsAction(sender: AnyObject!) {
         let settingsController = SettingsViewController()
+
+        settingsController.completionBlock = { [weak self] in
+            if let weakSelf = self {
+                weakSelf.updatePositionValues()
+                weakSelf.dismissViewControllerAnimated(true, completion: nil)
+            }
+        };
+
         let navController = UINavigationController(rootViewController: settingsController)
 
         self.presentViewController(navController, animated: true, completion: nil)

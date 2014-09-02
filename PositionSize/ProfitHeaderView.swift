@@ -15,6 +15,8 @@ class ProfitHeaderView: UIView {
         static let sectionWidth: CGFloat = 130.0
     }
 
+    var tradeTypeLabel: UILabel!
+
     var entryView: TextDetailView!
     var stopView: TextDetailView!
     var sharesView: TextDetailView!
@@ -32,6 +34,14 @@ class ProfitHeaderView: UIView {
         super.init(frame: frame)
 
         self.backgroundColor = UIColor.clearColor()
+
+        tradeTypeLabel = UILabel(frame: CGRectZero)
+        tradeTypeLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        tradeTypeLabel.font = UIFont.boldSystemFontOfSize(14.0)
+        tradeTypeLabel.textColor = UIColor.blackColor()
+        tradeTypeLabel.backgroundColor = UIColor.clearColor()
+
+        self.addSubview(tradeTypeLabel)
 
         entryView = TextDetailView(frame: CGRectZero)
         entryView.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -67,17 +77,19 @@ class ProfitHeaderView: UIView {
     }
 
     override func updateConstraints() {
+        tradeTypeLabel.autoCenterInSuperview()
+
         entryView.autoPinEdgeToSuperviewEdge(.Top, withInset: 10.0)
-        entryView.autoPinEdgeToSuperviewEdge(.Left, withInset: 20.0)
+        entryView.autoPinEdgeToSuperviewEdge(.Left, withInset: 10.0)
 
         stopView.autoPinEdgeToSuperviewEdge(.Top, withInset: 10.0)
-        stopView.autoPinEdgeToSuperviewEdge(.Right, withInset: 20.0)
+        stopView.autoPinEdgeToSuperviewEdge(.Right, withInset: 10.0)
 
         sharesView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 10.0)
-        sharesView.autoPinEdgeToSuperviewEdge(.Left, withInset: 20.0)
+        sharesView.autoPinEdgeToSuperviewEdge(.Left, withInset: 10.0)
 
         riskView.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 10.0)
-        riskView.autoPinEdgeToSuperviewEdge(.Right, withInset: 20.0)
+        riskView.autoPinEdgeToSuperviewEdge(.Right, withInset: 10.0)
 
         super.updateConstraints()
     }

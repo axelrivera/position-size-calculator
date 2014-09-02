@@ -13,14 +13,14 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     struct Config {
         static let CellIdentifier = "Cell"
         static let BreakevenIdentifier = "BreakevenCell"
-        static let maxRisk = 10
+        static let EmptyIdentifier = "EmptyCell"
     }
 
     var segmentedControl: UISegmentedControl!
     var tableView: UITableView!
 
     var position: Position!
-    var dataSource: [AnyObject]!
+    var dataSource: [TableRow] = []
 
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -76,6 +76,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             headerView.riskView.detailTextLabel.text = "Allowed Total Risk"
         }
 
+        headerView.tradeTypeLabel.text = position.tradeTypeString().uppercaseString
         headerView.entryView.textLabel.text = position.entryPriceString()
         headerView.stopView.textLabel.text = position.stopPriceString()
         headerView.sharesView.textLabel.text = position.allowedNumberOfSharesString()
@@ -113,6 +114,20 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     // MARK: - Private Methods
 
     private func updateDataSource() {
+        var dictionary: TableData
+        var rows: [TableRow] = []
+
+        var shares: NSDecimalNumber! = position.allowedNumberOfShares()
+        if shares == nil {
+            shares = NSDecimalNumber.zero()
+        }
+
+        if shares.isEqualToZero() {
+            dataSource = [ TableRow(data: [ "type" : "empty" ]) ]
+            tableView.reloadData()
+            return
+        }
+
         var breakevenPrice: NSDecimalNumber! = position.breakevenPricePerShare()
         if breakevenPrice == nil {
             breakevenPrice = NSDecimalNumber.zero()
@@ -123,18 +138,10 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             riskPerShare = NSDecimalNumber.zero()
         }
 
-        var shares: NSDecimalNumber! = position.allowedNumberOfShares()
-        if shares == nil {
-            shares = NSDecimalNumber.zero()
-        }
-
         var investment: NSDecimalNumber! = position.allowedTotalInvestment()
         if investment == nil {
             investment = NSDecimalNumber.zero()
         }
-
-        var dictionary: [String: AnyObject!]
-        var rows: [AnyObject] = []
 
         dictionary = [
             "type" : "breakeven",
@@ -142,11 +149,13 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             "detail" : breakevenPrice.currencyString(),
         ]
 
-        rows.append(dictionary)
+        rows.append(TableRow(data: dictionary))
 
         var isLoss = segmentedControl.selectedSegmentIndex == 1
 
-        for i in 1...Config.maxRisk {
+        let maxRisk = Int(AppConfig.profitLossRMultiple)
+
+        for i in 1...maxRisk {
             var decorationStr: String
             var decorationColor: UIColor
             var riskStr: String
@@ -181,19 +190,21 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             profitLoss = perShare.decimalNumberByMultiplyingBy(shares)
             totalStr = profitLoss.decimalNumberBySubtracting(investment).currencyString()
 
-            dictionary = [
-                "type" : "profit",
-                "decoration" : decorationStr,
-                "decoration_color" : decorationColor,
-                "risk" : riskStr,
-                "per_share_title" : "Share Price",
-                "per_share" : perShareStr,
-                "total_title" : totalTitle,
-                "total" : totalStr,
-                "total_color" : totalColor
-            ]
+            if perShare.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
+                dictionary = [
+                    "type" : "profit",
+                    "decoration" : decorationStr,
+                    "decoration_color" : decorationColor,
+                    "risk" : riskStr,
+                    "per_share_title" : "Share Price",
+                    "per_share" : perShareStr,
+                    "total_title" : totalTitle,
+                    "total" : totalStr,
+                    "total_color" : totalColor
+                ]
 
-            rows.append(dictionary)
+                rows.append(TableRow(data: dictionary))
+            }
         }
 
         dataSource = rows
@@ -210,8 +221,28 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     }
 
     func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
-        let dictionary = dataSource[indexPath.row] as [String: AnyObject!]
+        let dictionary = dataSource[indexPath.row].data
         let typeStr = dictionary["type"] as AnyObject! as String!
+
+        if typeStr == "empty" {
+            var cell = tableView.dequeueReusableCellWithIdentifier(Config.BreakevenIdentifier) as UITableViewCell!
+            if cell == nil {
+                cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.BreakevenIdentifier)
+
+                var textLabel = UILabel(frame: CGRectMake(0.0, 0.0, tableView.bounds.size.width - 20.0, 20.0))
+                textLabel.textColor = Color.text
+                textLabel.font = UIFont.systemFontOfSize(15.0)
+                textLabel.textAlignment = .Center
+                textLabel.backgroundColor = UIColor.clearColor()
+                textLabel.text = "No Data Available"
+
+                cell.accessoryView = textLabel
+            }
+
+            cell.selectionStyle = .None
+
+            return cell
+        }
 
         if typeStr == "breakeven" {
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.BreakevenIdentifier) as UITableViewCell!

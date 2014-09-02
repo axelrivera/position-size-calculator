@@ -19,6 +19,8 @@
 		16A043F319AAA6C60032C6E3 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F219AAA6C60032C6E3 /* Position.swift */; };
 		16A043F519AAAE6A0032C6E3 /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F419AAAE6A0032C6E3 /* NumberFormatter.swift */; };
 		16A043F719AAAF0E0032C6E3 /* DecimalNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F619AAAF0E0032C6E3 /* DecimalNumber.swift */; };
+		16A91F4D19B51F0D0059A09B /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A91F4C19B51F0D0059A09B /* Table.swift */; };
+		16A91F4F19B533140059A09B /* TradingStyleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A91F4E19B533140059A09B /* TradingStyleCell.swift */; };
 		16AB2CE819AFF821004E0761 /* BalanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB2CE719AFF821004E0761 /* BalanceViewController.swift */; };
 		16AB2CEA19B0257A004E0761 /* SummaryMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16AB2CE919B0257A004E0761 /* SummaryMessageView.swift */; };
 		16ADBF8E19A936DD002C37FB /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16ADBF8D19A936DD002C37FB /* Color.swift */; };
@@ -66,6 +68,8 @@
 		16A043F219AAA6C60032C6E3 /* Position.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
 		16A043F419AAAE6A0032C6E3 /* NumberFormatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
 		16A043F619AAAF0E0032C6E3 /* DecimalNumber.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecimalNumber.swift; sourceTree = "<group>"; };
+		16A91F4C19B51F0D0059A09B /* Table.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
+		16A91F4E19B533140059A09B /* TradingStyleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TradingStyleCell.swift; sourceTree = "<group>"; };
 		16AB2CE719AFF821004E0761 /* BalanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceViewController.swift; sourceTree = "<group>"; };
 		16AB2CE919B0257A004E0761 /* SummaryMessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryMessageView.swift; sourceTree = "<group>"; };
 		16ADBF8D19A936DD002C37FB /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
@@ -205,6 +209,7 @@
 			children = (
 				16ADBF9219A94FE5002C37FB /* AppConfig.swift */,
 				16A043F219AAA6C60032C6E3 /* Position.swift */,
+				16A91F4C19B51F0D0059A09B /* Table.swift */,
 			);
 			name = "Models + Data";
 			sourceTree = "<group>";
@@ -223,6 +228,7 @@
 				16DFC0F719B371A300C1F19A /* ProfitCell.swift */,
 				16DFC0F919B38AE300C1F19A /* TextDetailView.swift */,
 				16DFC0FB19B38E4400C1F19A /* ProfitHeaderView.swift */,
+				16A91F4E19B533140059A09B /* TradingStyleCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -389,8 +395,10 @@
 				16DFC0F819B371A300C1F19A /* ProfitCell.swift in Sources */,
 				16F23F97199DA1A6003EE89B /* SettingsViewController.swift in Sources */,
 				16ADBF8E19A936DD002C37FB /* Color.swift in Sources */,
+				16A91F4F19B533140059A09B /* TradingStyleCell.swift in Sources */,
 				1696DF5C19A06FBC0071219A /* SummaryView.swift in Sources */,
 				16ADBF9919A9986A002C37FB /* Button.swift in Sources */,
+				16A91F4D19B51F0D0059A09B /* Table.swift in Sources */,
 				160E313619A2E8250004D44B /* SummaryDetailView.swift in Sources */,
 				16DFC0FA19B38AE300C1F19A /* TextDetailView.swift in Sources */,
 				16A043F319AAA6C60032C6E3 /* Position.swift in Sources */,

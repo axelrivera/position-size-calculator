@@ -64,7 +64,7 @@ class BalanceViewController: UIViewController, UITextFieldDelegate {
         headerLabel.backgroundColor = UIColor.clearColor()
         headerLabel.textAlignment = .Left
 
-        headerLabel.text = "Account Size"
+        headerLabel.text = "Account Balance"
 
         self.view.addSubview(headerLabel)
 

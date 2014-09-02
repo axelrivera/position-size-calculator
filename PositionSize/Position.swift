@@ -316,8 +316,8 @@ class Position {
 
         let shares = numberOfShares()
 
-        if shares == nil {
-            return nil
+        if shares == nil || shares.isEqualToZero() {
+            return NSDecimalNumber.zero()
         }
 
         let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
@@ -340,8 +340,8 @@ class Position {
 
         let shares = allowedNumberOfShares()
 
-        if shares == nil {
-            return nil
+        if shares == nil || shares.isEqualToZero() {
+            return NSDecimalNumber.zero()
         }
 
         let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
