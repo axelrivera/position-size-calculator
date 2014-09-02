@@ -13,7 +13,8 @@ struct NumberFormatter {
     static var currency: NSNumberFormatter {
         let formatter = NSNumberFormatter()
         formatter.numberStyle = .CurrencyStyle
-        formatter.maximumFractionDigits = 2
+        formatter.positiveFormat = "¤#,##0.00"
+        formatter.negativeFormat = "-¤#,##0.00"
         return formatter
     }
 

@@ -83,7 +83,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         profitLossLabel = UILabel(frame: profitLossLabelFrame)
         profitLossLabel.font = UIFont.systemFontOfSize(16.0)
         profitLossLabel.textColor = UIColor.blackColor()
-        profitLossLabel.textAlignment = .Center
+        profitLossLabel.textAlignment = .Left
         profitLossLabel.backgroundColor = UIColor.clearColor()
 
         profitLossLabel.text = "\(AppConfig.profitLossRMultiple)"

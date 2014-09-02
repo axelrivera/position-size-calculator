@@ -15,11 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow!
     var mainViewController: MainViewController!
 
-    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
-        AppConfig.enableCommisions = true
-        AppConfig.entryCommission = NSDecimalNumber(double: 9.0)
-        AppConfig.exitCommission = NSDecimalNumber(double: 9.0)
-        
+    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {        
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window.backgroundColor = Color.background
         window.tintColor = Color.highlight

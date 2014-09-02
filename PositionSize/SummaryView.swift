@@ -183,7 +183,7 @@ class SummaryView: UIView, UIScrollViewDelegate {
             scrollView.addSubview(allowedTradePanel)
 
             riskPanel.titleLabel.text = "ALLOWED RISK"
-            riskPanel.leftDetailLabel.text = "% of Total Risk"
+            riskPanel.leftDetailLabel.text = "% of Risk"
             riskPanel.rightDetailLabel.text = "Total Allowed Risk"
 
             riskPanel.backgroundColor = Color.orange

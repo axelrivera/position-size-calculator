@@ -391,13 +391,25 @@ class Position {
 
     func breakevenPricePerShare() -> NSDecimalNumber! {
         let shares = allowedNumberOfShares()
-        let investment = allowedTotalInvestment()
-
         if shares == nil || shares.isEqualToZero() {
             return nil
         }
 
-        return investment.decimalNumberByDividingBy(shares)
+        let commissions = AppConfig.totalCommissions
+        let commissionsPerShare = commissions.decimalNumberByDividingBy(shares)
+
+        if commissionsPerShare.isEqualToZero() {
+            return entryPrice
+        }
+
+        var breakeven: NSDecimalNumber
+        if tradeType == .Long {
+            breakeven = entryPrice.decimalNumberByAdding(commissionsPerShare)
+        } else {
+            breakeven = entryPrice.decimalNumberBySubtracting(commissionsPerShare)
+        }
+
+        return breakeven
     }
 
     // MARK: -

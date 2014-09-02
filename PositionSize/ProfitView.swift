@@ -76,7 +76,7 @@ class ProfitView: UIView {
         shareLabel.textColor = UIColor.blackColor()
         shareLabel.textAlignment = .Right
 
-        shareLabel.autoSetDimension(.Width, toSize: 100.0)
+        shareLabel.autoSetDimension(.Width, toSize: 120.0)
 
         self.addSubview(shareLabel)
 
@@ -98,7 +98,7 @@ class ProfitView: UIView {
         totalLabel.textColor = UIColor.blackColor()
         totalLabel.textAlignment = .Right
 
-        totalLabel.autoSetDimension(.Width, toSize: 100.0)
+        totalLabel.autoSetDimension(.Width, toSize: 120.0)
 
         self.addSubview(totalLabel)
     }
@@ -112,7 +112,7 @@ class ProfitView: UIView {
         riskLabel.autoPinEdge(.Left, toEdge: .Left, ofView: decorationLabel)
 
         shareTitleLabel.autoAlignAxis(.Horizontal, toSameAxisOfView: shareLabel)
-        shareTitleLabel.autoPinEdge(.Left, toEdge: .Right, ofView: decorationLabel, withOffset: 30.0)
+        shareTitleLabel.autoPinEdge(.Left, toEdge: .Right, ofView: decorationLabel, withOffset: 10.0)
 
         shareLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: 10.0)
         shareLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 10.0)

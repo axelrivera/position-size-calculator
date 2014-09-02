@@ -73,7 +73,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             headerView.riskView.detailTextLabel.text = "Total Risk"
         } else {
             headerView.sharesView.detailTextLabel.text = "Allowed Shares"
-            headerView.riskView.detailTextLabel.text = "Allowed Total Risk"
+            headerView.riskView.detailTextLabel.text = "Total Allowed Risk"
         }
 
         headerView.tradeTypeLabel.text = position.tradeTypeString().uppercaseString
@@ -152,7 +152,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
         rows.append(TableRow(data: dictionary))
 
         var isLoss = segmentedControl.selectedSegmentIndex == 1
-
+        var isLong = position.tradeType == TradeType.Long
         let maxRisk = Int(AppConfig.profitLossRMultiple)
 
         for i in 1...maxRisk {
@@ -168,27 +168,73 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             var perShare: NSDecimalNumber
             var profitLoss: NSDecimalNumber
             var totalTitle: String
+            var totalPerShare: NSDecimalNumber
+            var profitPercent: NSDecimalNumber
 
             riskStr = risk.currencyString()
 
             if isLoss {
                 decorationStr = "-\(i)R"
                 decorationColor = Color.darkRed
-                perShare = breakevenPrice.decimalNumberBySubtracting(risk)
+                totalPerShare = risk.decimalNumberByMultiplyingBy(NSDecimalNumber(double: -1))
+
+                if isLong {
+                    perShare = breakevenPrice.decimalNumberBySubtracting(risk)
+
+                    if !perShare.isEqualToZero() {
+                        let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
+                        profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
+                    } else {
+                        profitPercent = NSDecimalNumber.zero()
+                    }
+                } else {
+                    perShare = breakevenPrice.decimalNumberByAdding(risk)
+
+                    if !breakevenPrice.isEqualToZero() {
+                        let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
+                        profitPercent = tmp.decimalNumberBySubtracting(NSDecimalNumber.one())
+                    } else {
+                        profitPercent = NSDecimalNumber.zero()
+                    }
+                }
+
                 totalColor = Color.darkRed
                 totalTitle = "Potential Loss"
             } else {
                 decorationStr = "\(i)R"
                 decorationColor = Color.darkGreen
-                perShare = breakevenPrice.decimalNumberByAdding(risk)
+                totalPerShare = risk
+
+                if isLong {
+                    perShare = breakevenPrice.decimalNumberByAdding(risk)
+
+                    if !breakevenPrice.isEqualToZero() {
+                        let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
+                        profitPercent = tmp.decimalNumberBySubtracting(NSDecimalNumber.one())
+                    } else {
+                        profitPercent = NSDecimalNumber.zero()
+                    }
+                } else {
+                    perShare = breakevenPrice.decimalNumberBySubtracting(risk)
+
+                    if !perShare.isEqualToZero() {
+                        let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
+                        profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
+                    } else {
+                        profitPercent = NSDecimalNumber.zero()
+                    }
+                }
+
                 totalColor = Color.darkGreen
                 totalTitle = "Expected Profit"
             }
 
+            println("total per share: \(totalPerShare)")
+
             riskStr = risk.currencyString()
             perShareStr = perShare.currencyString()
-            profitLoss = perShare.decimalNumberByMultiplyingBy(shares)
-            totalStr = profitLoss.decimalNumberBySubtracting(investment).currencyString()
+            profitLoss = totalPerShare.decimalNumberByMultiplyingBy(shares)
+            totalStr = "\(profitLoss.currencyString()) (\(profitPercent.percentString()))"
 
             if perShare.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
                 dictionary = [
