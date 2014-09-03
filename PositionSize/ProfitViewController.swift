@@ -183,7 +183,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
 
                     if !perShare.isEqualToZero() {
                         let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
-                        profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
+                        profitPercent = tmp.decimalNumberBySubtracting(NSDecimalNumber.one())
                     } else {
                         profitPercent = NSDecimalNumber.zero()
                     }
@@ -192,7 +192,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
 
                     if !breakevenPrice.isEqualToZero() {
                         let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
-                        profitPercent = tmp.decimalNumberBySubtracting(NSDecimalNumber.one())
+                        profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
                     } else {
                         profitPercent = NSDecimalNumber.zero()
                     }
@@ -232,9 +232,9 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             println("total per share: \(totalPerShare)")
 
             riskStr = risk.currencyString()
-            perShareStr = perShare.currencyString()
+            perShareStr = "\(perShare.currencyString()) (\(profitPercent.percentString()))"
             profitLoss = totalPerShare.decimalNumberByMultiplyingBy(shares)
-            totalStr = "\(profitLoss.currencyString()) (\(profitPercent.percentString()))"
+            totalStr = profitLoss.currencyString()
 
             if perShare.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
                 dictionary = [

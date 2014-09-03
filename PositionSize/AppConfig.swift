@@ -246,6 +246,28 @@ class AppConfig {
         }
     }
 
+    class func valuesForTraderProfile(traderProfile: TraderProfile) -> (risk: NSDecimalNumber, size: NSDecimalNumber) {
+        var risk: NSDecimalNumber
+        var size: NSDecimalNumber
+
+        switch traderProfile {
+        case .Aggressive:
+            risk = aggressiveRiskPercentage
+            size = aggressivePositionSize
+        case .Moderate:
+            risk = moderateRiskPercentage
+            size = moderatePositionSize
+        case .Conservative:
+            risk = conservativeRiskPercentage
+            size = conservativePositionSize
+        default:
+            risk = NSDecimalNumber.zero()
+            size = NSDecimalNumber.zero()
+        }
+
+        return (risk, size)
+    }
+
     class var profitLossRMultiple: Double {
         get {
             var number: NSNumber!

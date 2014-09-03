@@ -14,6 +14,9 @@
 		168BF8FF199BB2630024E4FC /* PositionSizeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168BF8FE199BB2630024E4FC /* PositionSizeTests.swift */; };
 		1696DF5C19A06FBC0071219A /* SummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1696DF5B19A06FBC0071219A /* SummaryView.swift */; };
 		169A3D2C19AED83500E6B707 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169A3D2B19AED83500E6B707 /* CustomButton.swift */; };
+		169EE5D719B68992005115CB /* TraderProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169EE5D619B68992005115CB /* TraderProfileViewController.swift */; };
+		169EE5D919B68ED8005115CB /* StepperCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169EE5D819B68ED8005115CB /* StepperCell.swift */; };
+		169EE5DB19B6BE9C005115CB /* CommissionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 169EE5DA19B6BE9C005115CB /* CommissionViewController.swift */; };
 		16A043EB19AA58C40032C6E3 /* ActionTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043EA19AA58C40032C6E3 /* ActionTileView.swift */; };
 		16A043ED19AA6F9A0032C6E3 /* PriceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */; };
 		16A043F319AAA6C60032C6E3 /* Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A043F219AAA6C60032C6E3 /* Position.swift */; };
@@ -63,6 +66,9 @@
 		168BF8FE199BB2630024E4FC /* PositionSizeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionSizeTests.swift; sourceTree = "<group>"; };
 		1696DF5B19A06FBC0071219A /* SummaryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryView.swift; sourceTree = "<group>"; };
 		169A3D2B19AED83500E6B707 /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
+		169EE5D619B68992005115CB /* TraderProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TraderProfileViewController.swift; sourceTree = "<group>"; };
+		169EE5D819B68ED8005115CB /* StepperCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StepperCell.swift; sourceTree = "<group>"; };
+		169EE5DA19B6BE9C005115CB /* CommissionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommissionViewController.swift; sourceTree = "<group>"; };
 		16A043EA19AA58C40032C6E3 /* ActionTileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionTileView.swift; sourceTree = "<group>"; };
 		16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceViewController.swift; sourceTree = "<group>"; };
 		16A043F219AAA6C60032C6E3 /* Position.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Position.swift; sourceTree = "<group>"; };
@@ -119,6 +125,8 @@
 				16A043EC19AA6F9A0032C6E3 /* PriceViewController.swift */,
 				16AB2CE719AFF821004E0761 /* BalanceViewController.swift */,
 				16DFC0F119B278CE00C1F19A /* ProfitViewController.swift */,
+				169EE5D619B68992005115CB /* TraderProfileViewController.swift */,
+				169EE5DA19B6BE9C005115CB /* CommissionViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -229,6 +237,7 @@
 				16DFC0F919B38AE300C1F19A /* TextDetailView.swift */,
 				16DFC0FB19B38E4400C1F19A /* ProfitHeaderView.swift */,
 				16A91F4E19B533140059A09B /* TradingStyleCell.swift */,
+				169EE5D819B68ED8005115CB /* StepperCell.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -386,14 +395,17 @@
 				16F23F9A199DAE5E003EE89B /* StrikeHeaderView.swift in Sources */,
 				16A043F519AAAE6A0032C6E3 /* NumberFormatter.swift in Sources */,
 				16AB2CE819AFF821004E0761 /* BalanceViewController.swift in Sources */,
+				169EE5D919B68ED8005115CB /* StepperCell.swift in Sources */,
 				16DFC0F219B278CE00C1F19A /* ProfitViewController.swift in Sources */,
 				16A043EB19AA58C40032C6E3 /* ActionTileView.swift in Sources */,
 				16ADBF9519A9915F002C37FB /* PercentViewController.swift in Sources */,
 				16ADBF9019A93718002C37FB /* UIColor+Hex.swift in Sources */,
 				16ADBF9319A94FE5002C37FB /* AppConfig.swift in Sources */,
+				169EE5DB19B6BE9C005115CB /* CommissionViewController.swift in Sources */,
 				16878CD0199C502000379918 /* MainViewController.swift in Sources */,
 				16DFC0F819B371A300C1F19A /* ProfitCell.swift in Sources */,
 				16F23F97199DA1A6003EE89B /* SettingsViewController.swift in Sources */,
+				169EE5D719B68992005115CB /* TraderProfileViewController.swift in Sources */,
 				16ADBF8E19A936DD002C37FB /* Color.swift in Sources */,
 				16A91F4F19B533140059A09B /* TradingStyleCell.swift in Sources */,
 				1696DF5C19A06FBC0071219A /* SummaryView.swift in Sources */,

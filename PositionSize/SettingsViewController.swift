@@ -20,9 +20,7 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
     var tableView: UITableView!
     var commissionSwitch: UISwitch!
 
-    var profitLossStepper: UIStepper!
-    var profitLossLabel: UILabel!
-    var profitLossView: UIView!
+    weak var profitLabel: UILabel?
 
     var dataSource: [TableSection] = []
 
@@ -63,47 +61,6 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         commissionSwitch.onTintColor = Color.highlight
 
         commissionSwitch.addTarget(self, action: "commissionChanged:", forControlEvents: .ValueChanged)
-
-        var profitLossStepperFrame: CGRect
-        var profitLossLabelFrame: CGRect
-        var profitLossFrame: CGRect
-
-        profitLossStepper = UIStepper(frame: CGRectZero)
-        profitLossStepper.stepValue = 1
-        profitLossStepper.minimumValue = 5.0
-        profitLossStepper.maximumValue = 25.0
-
-        profitLossStepper.value = AppConfig.profitLossRMultiple
-
-        profitLossStepper.addTarget(self, action: "stepperChanged:", forControlEvents: .ValueChanged)
-
-        profitLossStepperFrame = profitLossStepper.bounds
-        profitLossLabelFrame = CGRectMake(0.0, 0.0, 100.0, profitLossStepperFrame.size.height)
-
-        profitLossLabel = UILabel(frame: profitLossLabelFrame)
-        profitLossLabel.font = UIFont.systemFontOfSize(16.0)
-        profitLossLabel.textColor = UIColor.blackColor()
-        profitLossLabel.textAlignment = .Left
-        profitLossLabel.backgroundColor = UIColor.clearColor()
-
-        profitLossLabel.text = "\(AppConfig.profitLossRMultiple)"
-
-        profitLossFrame = CGRectMake(
-            0.0,
-            0.0,
-            profitLossStepperFrame.size.width + profitLossLabelFrame.size.width,
-            profitLossStepperFrame.size.height)
-
-        profitLossStepperFrame.origin.x = profitLossLabelFrame.size.width
-
-        profitLossStepper.frame = profitLossStepperFrame
-        profitLossLabel.frame = profitLossLabelFrame
-
-        profitLossView = UIView(frame: profitLossFrame)
-        profitLossView.backgroundColor = UIColor.clearColor()
-
-        profitLossView.addSubview(profitLossLabel)
-        profitLossView.addSubview(profitLossStepper)
 
         // AutoLayout
 
@@ -153,12 +110,15 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
 
     func stepperChanged(stepper: UIStepper) {
         AppConfig.profitLossRMultiple = stepper.value
-        profitLossLabel.text = "\(stepper.value)"
+
+        if let label = profitLabel {
+            label.text = "\(stepper.value)"
+        }
     }
 
-    // MARK: - Private Methods
+    // MARK: - Public Methods
 
-    private func updateDataSource(#reload: Bool) {
+    func updateDataSource(#reload: Bool) {
         var dictionary: TableData
 
         var sections = [TableSection]()
@@ -244,6 +204,8 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             var entryCommission: NSString!
             if let commission = AppConfig.entryCommission {
                 entryCommission = commission.currencyString()
+            } else {
+                entryCommission = NSDecimalNumber.zero().currencyString()
             }
 
             dictionary = [ "type": "commission", "text": "Entry", "detail": entryCommission, "subtype": "entry" ]
@@ -252,6 +214,8 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             var exitCommission: NSString!
             if let commission = AppConfig.exitCommission {
                 exitCommission = commission.currencyString()
+            } else {
+                exitCommission = NSDecimalNumber.zero().currencyString()
             }
 
             dictionary = [ "type": "commission", "text": "Exit", "detail": exitCommission, "subtype": "exit" ]
@@ -263,7 +227,11 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         rows = []
 
         dictionary = [ "type": "profit_loss", "text": "R Multiple" ]
-        rows.append(TableRow(data: dictionary))
+
+        var profitRow = TableRow(data: dictionary)
+        profitRow.height = StepperCell.defaultHeight
+
+        rows.append(profitRow)
 
         var profitSection = TableSection(title: "Profit / Loss", rows: rows)
         profitSection.footer = "Maximum R Multiple for Profits & Losses"
@@ -352,18 +320,26 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         }
 
         if typeStr == "profit_loss" {
-            var cell = tableView.dequeueReusableCellWithIdentifier(Config.ProfitIdentifier) as UITableViewCell!
+            var cell = tableView.dequeueReusableCellWithIdentifier(Config.ProfitIdentifier) as StepperCell!
             if cell == nil {
-                cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.ProfitIdentifier)
-                cell.textLabel.font = UIFont.systemFontOfSize(15.0)
-
-                cell.accessoryView = profitLossView
+                cell = StepperCell(reuseIdentifier: Config.ProfitIdentifier)
             }
 
             let textStr = dictionary["text"] as AnyObject! as String!
 
-            cell.textLabel.text = textStr
-            cell.selectionStyle = .None
+            cell.titleLabel.text = textStr
+
+            cell.stepper.minimumValue = 5
+            cell.stepper.maximumValue = 25
+            cell.stepper.stepValue = 1
+            cell.stepper.value = AppConfig.profitLossRMultiple
+
+            cell.stepper.addTarget(self, action: "stepperChanged:", forControlEvents: .ValueChanged)
+
+            cell.supportLabel.text = "\(AppConfig.profitLossRMultiple)"
+            profitLabel = cell.supportLabel
+
+            cell.setNeedsUpdateConstraints()
 
             return cell
         }
@@ -375,6 +351,108 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
 
     func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
+
+        let dictionary = dataSource[indexPath.section].rows[indexPath.row].data
+        let typeStr = dictionary["type"] as AnyObject! as String!
+        let subtypeStr = dictionary["subtype"] as AnyObject! as String!
+
+        if typeStr == "trading" {
+            var title: String!
+            var defaultRisk: Double!
+            var defaultSize: Double!
+            var profile: TraderProfile!
+
+            if subtypeStr == "aggressive" {
+                title = "Aggressive"
+                profile = .Aggressive
+                defaultRisk = AppDefaults.aggressiveRiskPercentage
+                defaultSize = AppDefaults.aggressivePositionSize
+            } else if subtypeStr == "moderate" {
+                title = "Moderate"
+                profile = .Moderate
+                defaultRisk = AppDefaults.moderateRiskPercentage
+                defaultSize = AppDefaults.moderatePositionSize
+            } else if subtypeStr == "conservative" {
+                title = "Conservative"
+                profile = .Conservative
+                defaultRisk = AppDefaults.conservativeRiskPercentage
+                defaultSize = AppDefaults.conservativePositionSize
+            }
+
+            var profileValues = AppConfig.valuesForTraderProfile(profile)
+            var properties = TraderProfileProperties(title: title, profile: profile)
+            properties.defaultRisk = defaultRisk * 100
+            properties.defaultSize = defaultSize * 100
+            properties.initialRisk = profileValues.risk.doubleValue * 100
+            properties.initialSize = profileValues.size.doubleValue * 100
+
+            let traderController = TraderProfileViewController(properties: properties)
+
+            traderController.saveBlock = { [weak self] (controller: TraderProfileViewController, profile: TraderProfile, risk: Double, size: Double) in
+                if let weakSelf = self {
+
+                    switch profile {
+                    case .Aggressive:
+                        AppConfig.aggressiveRiskPercentage = NSDecimalNumber(double: risk / 100)
+                        AppConfig.aggressivePositionSize = NSDecimalNumber(double: size / 100)
+                    case .Moderate:
+                        AppConfig.moderateRiskPercentage = NSDecimalNumber(double: risk / 100)
+                        AppConfig.moderatePositionSize = NSDecimalNumber(double: size / 100)
+                    case .Conservative:
+                        AppConfig.conservativeRiskPercentage = NSDecimalNumber(double: risk / 100)
+                        AppConfig.conservativePositionSize = NSDecimalNumber(double: size / 100)
+                    default:
+                        println("invalid profile")
+                    }
+
+                    weakSelf.updateDataSource(reload: true)
+                    weakSelf.navigationController.popViewControllerAnimated(true)
+                }
+            }
+
+            self.navigationController.pushViewController(traderController, animated: true)
+        }
+
+        if typeStr == "commission" {
+            var commissionType: CommissionType!
+            var price: NSDecimalNumber!
+            var labelStr: String!
+
+            if subtypeStr == "entry" {
+                commissionType = .Entry
+                price = AppConfig.entryCommission
+                labelStr = "Entry Price"
+            } else if subtypeStr == "exit" {
+                commissionType = .Exit
+                price = AppConfig.exitCommission
+                labelStr = "Exit Price"
+            }
+
+            if price == nil {
+                price = NSDecimalNumber.zero()
+            }
+
+            var properties = CommissionProperties(title: "Commission", commissionType: commissionType)
+            properties.defaultPrice = price
+            properties.inputStr = labelStr
+
+            let commissionController = CommissionViewController(properties: properties)
+
+            commissionController.saveBlock = { [weak self] (controller: CommissionViewController, commissionType: CommissionType, price: NSDecimalNumber) in
+                if let weakSelf = self {
+                    if commissionType == CommissionType.Entry {
+                        AppConfig.entryCommission = price
+                    } else if commissionType == CommissionType.Exit {
+                        AppConfig.exitCommission = price
+                    }
+
+                    weakSelf.updateDataSource(reload: true)
+                    weakSelf.navigationController.popViewControllerAnimated(true)
+                }
+            }
+
+            self.navigationController.pushViewController(commissionController, animated: true)
+        }
     }
 
     func tableView(tableView: UITableView!, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {

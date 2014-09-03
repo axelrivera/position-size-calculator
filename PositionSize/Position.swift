@@ -415,20 +415,9 @@ class Position {
     // MARK: -
 
     func updateValuesForTraderProfile(profile: TraderProfile) {
-        switch profile {
-        case .Aggressive:
-            riskPercentage = NSDecimalNumber(double: 0.02)
-            maxPositionSize = NSDecimalNumber(double: 0.2)
-        case .Moderate:
-            riskPercentage = NSDecimalNumber(double: 0.015)
-            maxPositionSize = NSDecimalNumber(double: 0.15)
-        case .Conservative:
-            riskPercentage = NSDecimalNumber(double: 0.01)
-            maxPositionSize = NSDecimalNumber(double: 0.1)
-        default:
-            riskPercentage = NSDecimalNumber.zero()
-            maxPositionSize = NSDecimalNumber.zero()
-        }
+        let values = AppConfig.valuesForTraderProfile(profile)
+        riskPercentage = values.risk
+        maxPositionSize = values.size
     }
 
     func resetValues() {
