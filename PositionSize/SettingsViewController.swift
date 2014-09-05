@@ -89,23 +89,9 @@ class SettingsViewController: UITableViewController {
             Flurry.logEvent(AnalyticsKeys.disableCommissions)
         }
 
-        let indexPaths = [
-            NSIndexPath(forRow: 1, inSection: 1),
-            NSIndexPath(forRow: 2, inSection: 1)
-        ]
-
-        // FIXME: Animation Broken in Beta 7
-        updateDataSource(reload: true)
-
-//        self.tableView.beginUpdates()
-//
-//        if AppConfig.enableCommisions {
-//            self.tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
-//        } else {
-//            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
-//        }
-//
-//        self.tableView.endUpdates()
+        // TODO: Change Index if You Add a New Section
+        updateDataSource(reload: false)
+        self.tableView.reloadSections(NSIndexSet(index: 2), withRowAnimation: .Automatic)
     }
 
     func stepperChanged(stepper: UIStepper) {
