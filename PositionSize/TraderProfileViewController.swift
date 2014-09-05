@@ -24,7 +24,7 @@ struct TraderProfileProperties {
     }
 }
 
-class TraderProfileViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TraderProfileViewController: UITableViewController {
 
     struct Config {
         static let CellIdentifier = "Cell"
@@ -32,8 +32,6 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
         static let riskTag = 100
         static let sizeTag = 200
     }
-
-    var tableView: UITableView!
 
     weak var riskStepper: UIStepper?
     weak var riskLabel: UILabel?
@@ -63,32 +61,19 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
     }
 
     override func loadView() {
-        self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = UIColor.whiteColor()
-
         self.tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
         self.tableView.dataSource = self
         self.tableView.delegate = self
-
-        self.view.addSubview(self.tableView)
+        self.tableView.backgroundColor = Color.ultraLightPurple
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.automaticallyAdjustsScrollViewInsets = false
-
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .Save,
             target: self,
             action: "saveAction:")
-
-        tableView.backgroundColor = Color.highlight.colorWithAlphaComponent(0.1)
-
-        // AutoLayout
-
-        self.tableView.autoPinToTopLayoutGuideOfViewController(self, withInset: 0.0)
-        self.tableView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
     }
 
     override func didReceiveMemoryWarning() {
@@ -122,11 +107,11 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Table view data source
 
-    func numberOfSectionsInTableView(tableView: UITableView!) -> Int {
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 2
     }
 
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         var rows  = 0
 
         if section == 0 {
@@ -138,24 +123,17 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
         return rows
     }
 
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         if indexPath.section == 1 {
-            var cell = tableView.dequeueReusableCellWithIdentifier(Config.ResetIdentifier) as UITableViewCell!
+            var cell = tableView.dequeueReusableCellWithIdentifier(Config.ResetIdentifier) as ButtonCell!
             if cell == nil {
-                cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.ResetIdentifier)
-
-                var textLabel = UILabel(frame: CGRectMake(0.0, 0.0, tableView.bounds.size.width - 20.0, 20.0))
-                textLabel.font = UIFont.systemFontOfSize(16.0)
-                textLabel.textAlignment = .Center
-                textLabel.textColor = Color.red
-                textLabel.backgroundColor = UIColor.clearColor()
-                textLabel.text = "Reset to Default Values"
-
-                cell.accessoryView = textLabel
+                cell = ButtonCell(reuseIdentifier: Config.ResetIdentifier)
+                cell.titleLabel.textColor = Color.red
             }
 
-            cell.selectionStyle = .Default
-            
+            cell.titleLabel.text = "Reset to Default Values"
+            cell.setNeedsUpdateConstraints()
+
             return cell
         }
 
@@ -199,10 +177,15 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
 
     // MARK: - UITableViewDelegate Methods
 
-    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
 
         if indexPath.section == 1 {
+            Flurry.logEvent(
+                AnalyticsKeys.resetTradingStyle,
+                withParameters: [ "style": properties.profile.toRaw() ]
+            )
+
             if let stepper = riskStepper {
                 stepper.value = properties.defaultRisk
                 stepperChanged(stepper)
@@ -215,7 +198,7 @@ class TraderProfileViewController: UIViewController, UITableViewDataSource, UITa
         }
     }
 
-    func tableView(tableView: UITableView!, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         var height: CGFloat = 44.0
 
         if indexPath.section == 0 {

@@ -116,7 +116,7 @@ class Position {
     // MARK: - Account
 
     func accountSizeString() -> String {
-        return accountSize.isEqualToZero() ? "Tap to Enter Your Account Size" : accountSize.currencyString()
+        return accountSize.isEqualToZero() ? "Tap to Enter Your Account Balance" : accountSize.currencyString()
     }
 
     func riskPercentageString() -> String {

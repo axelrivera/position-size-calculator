@@ -162,6 +162,11 @@ class PercentViewController: UIViewController {
         resetAction(nil)
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        Flurry.logPageView()
+    }
+
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -182,6 +187,8 @@ class PercentViewController: UIViewController {
     // MARK: - Selector Methods
 
     func resetAction(sender: AnyObject!) {
+        Flurry.logEvent(AnalyticsKeys.resetToInitialValue)
+
         stepperView.value = config.percent
         stepperChanged(stepperView)
     }

@@ -15,7 +15,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow!
     var mainViewController: MainViewController!
 
-    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {        
+    func application(application: UIApplication!, didFinishLaunchingWithOptions launchOptions: NSDictionary!) -> Bool {
+        #if DEBUG
+            let flurryAPIKey = Analytics.devKey
+        #else
+            let flurryAPIKey = Analytics.productionKey
+        #endif
+
+        Flurry.setCrashReportingEnabled(true) // Crash Reporting must be called before starting the session
+        Flurry.startSession(flurryAPIKey)
+
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         window.backgroundColor = Color.background
         window.tintColor = Color.highlight

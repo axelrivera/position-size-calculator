@@ -28,13 +28,12 @@ struct CommissionProperties {
     }
 }
 
-class CommissionViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class CommissionViewController: UITableViewController, UITextFieldDelegate {
 
     struct Config {
         static let CellIdentifier = "Cell"
     }
 
-    var tableView: UITableView!
     var textField: UITextField!
 
     var properties: CommissionProperties!
@@ -58,20 +57,14 @@ class CommissionViewController: UIViewController, UITableViewDataSource, UITable
     }
 
     override func loadView() {
-        self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = UIColor.whiteColor()
-
         self.tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
         self.tableView.dataSource = self
         self.tableView.delegate = self
-
-        self.view.addSubview(self.tableView)
+        self.tableView.backgroundColor = Color.ultraLightPurple
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.automaticallyAdjustsScrollViewInsets = false
 
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .Save,
@@ -81,8 +74,6 @@ class CommissionViewController: UIViewController, UITableViewDataSource, UITable
         if let tmp = properties.defaultPrice {
             price = tmp
         }
-
-        tableView.backgroundColor = Color.highlight.colorWithAlphaComponent(0.1)
 
         textField = UITextField(frame: CGRectMake(0.0, 0.0, 190.0, 30.0))
         textField.font = UIFont.systemFontOfSize(17.0)
@@ -97,11 +88,6 @@ class CommissionViewController: UIViewController, UITableViewDataSource, UITable
         textField.minimumFontSize = 14.0
 
         textField.delegate = self
-
-        // AutoLayout
-
-        self.tableView.autoPinToTopLayoutGuideOfViewController(self, withInset: 0.0)
-        self.tableView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
 
         // Default Values
 
@@ -141,20 +127,20 @@ class CommissionViewController: UIViewController, UITableViewDataSource, UITable
 
     // MARK: - UITableViewDataSource Methods
 
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
     }
 
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCellWithIdentifier(Config.CellIdentifier) as UITableViewCell!
 
         if cell == nil {
             cell = UITableViewCell(style: .Default, reuseIdentifier: Config.CellIdentifier)
-            cell.textLabel.font = UIFont.systemFontOfSize(15.0)
+            cell.textLabel?.font = UIFont.systemFontOfSize(15.0)
             cell.accessoryView = textField
         }
 
-        cell.textLabel.text = properties.inputStr
+        cell.textLabel?.text = properties.inputStr
         cell.selectionStyle = .None
 
         return cell
@@ -162,7 +148,7 @@ class CommissionViewController: UIViewController, UITableViewDataSource, UITable
 
     // MARK: - UITableViewDelegate Methods
 
-    func tableView(tableView: UITableView!, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 48.0
     }
 

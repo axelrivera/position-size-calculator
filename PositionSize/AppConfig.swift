@@ -8,6 +8,30 @@
 
 import Foundation
 
+struct Analytics {
+    static let devKey = "MCYJNPYXQYH5QWMNPBBF"
+    static let productionKey = "K9G92V2NHD55GMG5HJRK"
+}
+
+struct AnalyticsKeys {
+    static let enableCommissions = "Enable Commissions"
+    static let disableCommissions = "Disable Commissions"
+    static let updateRMultiple = "Update R-Multiple"
+    static let updateTradingStyle = "Update Trading Style"
+    static let resetTradingStyle = "Reset Trading Style"
+    static let selectTradingStyle = "Select Trading Style"
+    static let updateAccountBalance = "Update Account Balance"
+    static let updateRiskPercentage = "Update Risk Percentage"
+    static let updateMaximumPositionSize = "Update Maximum Position Size"
+    static let updateEntryPrice = "Update Entry Price"
+    static let updateStopLossPrice = "Update Stop Loss Price"
+    static let resetPosition = "Reset Position"
+    static let resetToInitialValue = "Reset to Initial Value"
+    static let selectProfitLoss = "Select Profit Loss"
+    static let selectSettings = "Select Settings"
+    static let selectGeneralGuide = "Select General Guide"
+}
+
 enum TradeType {
     case None
     case Long
@@ -44,6 +68,11 @@ struct UserKeys {
     static let conservativeRiskPercentage = "PSUserKeyConservativeRiskPercentage"
     static let conservativePositionSize = "PSUserKeyConservativePositionSize"
     static let profitLossRMultiple = "PSUserKeyProfitLossRMultiple"
+}
+
+struct URLStrings {
+    static let guide = "http://chartingninja.com/trade_size_guide/"
+    static let appStore = "http://apple.com"
 }
 
 class AppConfig {

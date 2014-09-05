@@ -33,7 +33,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         position.stopPrice = NSDecimalNumber(double: 24.0)
         position.updateValuesForTraderProfile(AppConfig.defaultTraderProfile)
 
-        settingsButton = UIButton.buttonWithType(.System) as UIButton!
+        settingsButton = UIButton.buttonWithType(.System) as UIButton
         settingsButton.setImage(UIImage(named: "settings"), forState: .Normal)
 
         settingsButton.addTarget(self, action: "settingsAction:", forControlEvents: .TouchUpInside)
@@ -140,6 +140,11 @@ class MainViewController: UIViewController, ActionViewDelegate {
         updatePositionValues()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        Flurry.logPageView()
+    }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -202,6 +207,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
     // MARK: - Selector Methods
 
     func settingsAction(sender: AnyObject!) {
+        Flurry.logEvent(AnalyticsKeys.selectSettings)
+
         let settingsController = SettingsViewController()
 
         settingsController.completionBlock = { [weak self] in
@@ -212,6 +219,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
         };
 
         let navController = UINavigationController(rootViewController: settingsController)
+
+        Flurry.logAllPageViewsForTarget(navController)
 
         self.presentViewController(navController, animated: true, completion: nil)
     }
@@ -225,6 +234,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         priceController.saveBlock = { [weak self] (controller: BalanceViewController, price: NSDecimalNumber) in
             if let weakSelf = self {
+                Flurry.logEvent(AnalyticsKeys.updateAccountBalance)
+                
                 weakSelf.position.accountSize = price
                 weakSelf.updatePositionValues()
 
@@ -242,18 +253,31 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func segmentedControlChanged(segmentedControl: UISegmentedControl!) {
-        position.updateValuesForTraderProfile(AppConfig.traderProfileForIndex(segmentedControl.selectedSegmentIndex))
+        let profile = AppConfig.traderProfileForIndex(segmentedControl.selectedSegmentIndex)
+
+        Flurry.logEvent(
+            AnalyticsKeys.updateTradingStyle,
+            withParameters: [ "style": profile.toRaw() ]
+        )
+
+        position.updateValuesForTraderProfile(profile)
         updatePositionValues()
     }
 
     func profitAction(sender: AnyObject!) {
+        Flurry.logEvent(AnalyticsKeys.selectProfitLoss)
+
         let profitController = ProfitViewController(position: position)
         let navController = UINavigationController(rootViewController: profitController)
+
+        Flurry.logAllPageViewsForTarget(navController)
 
         self.presentViewController(navController, animated: true, completion: nil)
     }
 
     func resetAction(sender: AnyObject!) {
+        Flurry.logEvent(AnalyticsKeys.resetPosition)
+
         summaryView.setStatus(.None)
         position.resetValues()
         updatePositionValues()
@@ -288,6 +312,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
+                Flurry.logEvent(AnalyticsKeys.updateRiskPercentage)
+
                 weakSelf.position.riskPercentage = NSDecimalNumber(double: percent / 100.0)
                 weakSelf.updatePositionValues()
 
@@ -316,6 +342,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
             if let weakSelf = self {
+                Flurry.logEvent(AnalyticsKeys.updateMaximumPositionSize)
+
                 weakSelf.position.maxPositionSize = NSDecimalNumber(double: percent / 100.0)
                 weakSelf.updatePositionValues()
 
@@ -342,6 +370,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
             if let weakSelf = self {
+                Flurry.logEvent(AnalyticsKeys.updateEntryPrice)
+
                 weakSelf.position.entryPrice = price
                 weakSelf.position.tradeType = tradeType
                 weakSelf.updatePositionValues()
@@ -368,6 +398,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
         priceController.saveBlock = { [weak self] (controller: PriceViewController, price: NSDecimalNumber, tradeType: TradeType) in
             if let weakSelf = self {
+                Flurry.logEvent(AnalyticsKeys.updateStopLossPrice)
+
                 weakSelf.position.stopPrice = price
                 weakSelf.updatePositionValues()
 

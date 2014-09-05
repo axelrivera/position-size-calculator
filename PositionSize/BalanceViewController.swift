@@ -158,6 +158,11 @@ class BalanceViewController: UIViewController, UITextFieldDelegate {
         textField.becomeFirstResponder()
     }
 
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        Flurry.logPageView()
+    }
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

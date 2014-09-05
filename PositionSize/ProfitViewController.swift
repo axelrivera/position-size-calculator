@@ -104,7 +104,9 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     // MARK: - Selector Methods
 
     func doneAction(sender: AnyObject!) {
-        self.navigationController.dismissViewControllerAnimated(true, completion: nil)
+        if let controller = self.navigationController {
+            controller.dismissViewControllerAnimated(true, completion: nil)
+        }
     }
 
     func segmentedControlChanged(segmentedControl: UISegmentedControl) {
@@ -259,14 +261,14 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
 
     // MARK: - Table view data source
 
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
 
         return dataSource.count
     }
 
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let dictionary = dataSource[indexPath.row].data
         let typeStr = dictionary["type"] as AnyObject! as String!
 
@@ -295,18 +297,18 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             if cell == nil {
                 cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.BreakevenIdentifier)
 
-                cell.textLabel.textColor = Color.chocolate
-                cell.textLabel.font = UIFont(name: "Verdana-Bold", size: 22.0)
+                cell.textLabel?.textColor = Color.chocolate
+                cell.textLabel?.font = UIFont(name: "Verdana-Bold", size: 22.0)
 
-                cell.detailTextLabel.textColor = UIColor.blackColor()
-                cell.detailTextLabel.font = UIFont.systemFontOfSize(16.0)
+                cell.detailTextLabel?.textColor = UIColor.blackColor()
+                cell.detailTextLabel?.font = UIFont.systemFontOfSize(16.0)
             }
 
             let textStr = dictionary["text"] as AnyObject! as String!
             let detailStr = dictionary["detail"] as AnyObject! as String!
 
-            cell.textLabel.text = textStr
-            cell.detailTextLabel.text = detailStr
+            cell.textLabel?.text = textStr
+            cell.detailTextLabel?.text = detailStr
 
             cell.selectionStyle = .None
             cell.accessoryType = .None
@@ -347,7 +349,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
         return cell
     }
 
-    func tableView(tableView: UITableView!, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
         return ProfitCell.defaultHeight
     }
 

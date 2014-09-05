@@ -54,6 +54,10 @@ struct Color {
         return UIColor.colorWithHex(0x5C3566)
     }
 
+    static var ultraLightPurple: UIColor {
+        return UIColor.colorWithHex(0xEEEAEF)
+    }
+
     static var lightButter: UIColor {
         return UIColor.colorWithHex(0xFCE94F)
     }

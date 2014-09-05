@@ -8,40 +8,34 @@
 
 import UIKit
 
-class SettingsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class SettingsViewController: UITableViewController {
 
     struct Config {
+        static let CellIdentifier = "Cell"
         static let TradingIdentifier = "TradingCell"
         static let CommissionIdentifier = "CommissionCell"
         static let CommissionSwitchIdentifier = "CommissionSwitchCell"
         static let ProfitIdentifier = "ProfitCell"
     }
 
-    var tableView: UITableView!
     var commissionSwitch: UISwitch!
 
     weak var profitLabel: UILabel?
+    weak var profitStepper: UIStepper?
 
     var dataSource: [TableSection] = []
 
     var completionBlock: (() -> Void)?
 
     override func loadView() {
-        self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = UIColor.whiteColor()
-
-        tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
-        tableView.setTranslatesAutoresizingMaskIntoConstraints(false)
-        tableView.dataSource = self
-        tableView.delegate = self
-
-        self.view.addSubview(tableView)
+        self.tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
+        self.tableView.dataSource = self
+        self.tableView.delegate = self
+        self.tableView.backgroundColor = Color.ultraLightPurple
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.automaticallyAdjustsScrollViewInsets = false
 
         self.title = "Settings"
 
@@ -51,8 +45,6 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             action: "doneAction:"
         )
 
-        tableView.backgroundColor = Color.highlight.colorWithAlphaComponent(0.1)
-
         // Views inside UITableViewCells
 
         commissionSwitch = UISwitch(frame: CGRectZero)
@@ -61,11 +53,6 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         commissionSwitch.onTintColor = Color.highlight
 
         commissionSwitch.addTarget(self, action: "commissionChanged:", forControlEvents: .ValueChanged)
-
-        // AutoLayout
-
-        self.tableView.autoPinToTopLayoutGuideOfViewController(self, withInset: 0.0)
-        self.tableView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
 
         // Default Values
 
@@ -80,32 +67,45 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
     // MARK: - Selector Methods
 
     func doneAction(sender: AnyObject!) {
+        if let stepper = profitStepper {
+            if AppConfig.profitLossRMultiple != stepper.value {
+                Flurry.logEvent(AnalyticsKeys.updateRMultiple)
+            }
+        }
+
         if let block = completionBlock {
             block()
         } else {
-            self.navigationController.dismissViewControllerAnimated(true, completion: nil)
+            self.navigationController?.dismissViewControllerAnimated(true, completion: nil)
         }
     }
 
     func commissionChanged(mySwitch: UISwitch) {
         AppConfig.enableCommisions = mySwitch.on
 
+        if AppConfig.enableCommisions {
+            Flurry.logEvent(AnalyticsKeys.enableCommissions)
+        } else {
+            Flurry.logEvent(AnalyticsKeys.disableCommissions)
+        }
+
         let indexPaths = [
             NSIndexPath(forRow: 1, inSection: 1),
             NSIndexPath(forRow: 2, inSection: 1)
         ]
 
-        updateDataSource(reload: false)
+        // FIXME: Animation Broken in Beta 7
+        updateDataSource(reload: true)
 
-        tableView.beginUpdates()
-
-        if AppConfig.enableCommisions {
-            tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
-        } else {
-            tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
-        }
-
-        tableView.endUpdates()
+//        self.tableView.beginUpdates()
+//
+//        if AppConfig.enableCommisions {
+//            self.tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+//        } else {
+//            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+//        }
+//
+//        self.tableView.endUpdates()
     }
 
     func stepperChanged(stepper: UIStepper) {
@@ -123,6 +123,13 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
 
         var sections = [TableSection]()
         var rows = [TableRow]()
+
+        dictionary = [ "type": "text", "text": "General Guide", "subtype": "guide" ]
+        rows.append(TableRow(data: dictionary))
+
+        sections.append(TableSection(title: nil, rows: rows))
+
+        rows = []
 
         var aggressiveRisk = NSDecimalNumber.zero().percentString()
         if let percent = AppConfig.aggressiveRiskPercentage {
@@ -241,25 +248,41 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         dataSource = sections
 
         if reload {
-            tableView.reloadData()
+            self.tableView.reloadData()
         }
     }
 
     // MARK: - Table view data source
 
-    func numberOfSectionsInTableView(tableView: UITableView!) -> Int {
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return dataSource.count
     }
 
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource[section].rows.count
     }
 
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell! {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let dictionary = dataSource[indexPath.section].rows[indexPath.row].data
 
         let typeStr = dictionary["type"] as AnyObject! as String!
         let subtypeStr = dictionary["subtype"] as AnyObject! as String!
+
+        if typeStr == "text" {
+            var cell = tableView.dequeueReusableCellWithIdentifier(Config.CellIdentifier) as UITableViewCell!
+            if cell == nil {
+                cell = UITableViewCell(style: .Default, reuseIdentifier: Config.CellIdentifier)
+            }
+
+            let textStr = dictionary["text"] as AnyObject! as String!
+
+            cell.textLabel?.text = textStr
+
+            cell.selectionStyle = .Default
+            cell.accessoryType = .DisclosureIndicator
+
+            return cell
+        }
 
         if typeStr == "trading" {
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.TradingIdentifier) as TradingStyleCell!
@@ -287,12 +310,12 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.CommissionSwitchIdentifier) as UITableViewCell!
             if cell == nil {
                 cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.CommissionSwitchIdentifier)
-                cell.textLabel.font = UIFont.systemFontOfSize(16.0)
+                cell.textLabel?.font = UIFont.systemFontOfSize(16.0)
 
                 cell.accessoryView = commissionSwitch
             }
 
-            cell.textLabel.text = "Enable Commissions"
+            cell.textLabel?.text = "Enable Commissions"
 
             cell.selectionStyle = .None
 
@@ -303,15 +326,15 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.CommissionIdentifier) as UITableViewCell!
             if cell == nil {
                 cell = UITableViewCell(style: .Value1, reuseIdentifier: Config.CommissionIdentifier)
-                cell.textLabel.font = UIFont.systemFontOfSize(16.0)
-                cell.detailTextLabel.font = UIFont.systemFontOfSize(15.0)
+                cell.textLabel?.font = UIFont.systemFontOfSize(16.0)
+                cell.detailTextLabel?.font = UIFont.systemFontOfSize(15.0)
             }
 
             let textStr = dictionary["text"] as AnyObject! as String!
             let detailStr = dictionary["detail"] as AnyObject! as String!
 
-            cell.textLabel.text = textStr
-            cell.detailTextLabel.text = detailStr
+            cell.textLabel?.text = textStr
+            cell.detailTextLabel?.text = detailStr
 
             cell.selectionStyle = .Default
             cell.accessoryType = .DisclosureIndicator
@@ -337,24 +360,36 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             cell.stepper.addTarget(self, action: "stepperChanged:", forControlEvents: .ValueChanged)
 
             cell.supportLabel.text = "\(AppConfig.profitLossRMultiple)"
+
             profitLabel = cell.supportLabel
+            profitStepper = cell.stepper
 
             cell.setNeedsUpdateConstraints()
 
             return cell
         }
 
-        return nil
+        return UITableViewCell(style: .Default, reuseIdentifier: nil)
     }
 
     // MARK: - TableViewDataSource Methods
 
-    func tableView(tableView: UITableView!, didSelectRowAtIndexPath indexPath: NSIndexPath!) {
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
 
         let dictionary = dataSource[indexPath.section].rows[indexPath.row].data
         let typeStr = dictionary["type"] as AnyObject! as String!
         let subtypeStr = dictionary["subtype"] as AnyObject! as String!
+
+        if typeStr == "text" && subtypeStr == "guide" {
+            Flurry.logEvent(AnalyticsKeys.selectGeneralGuide)
+
+            var webController = WebViewController(urlString: URLStrings.guide)
+            webController.title = "Guide"
+
+            self.navigationController?.pushViewController(webController, animated: true)
+            return
+        }
 
         if typeStr == "trading" {
             var title: String!
@@ -391,6 +426,11 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
             traderController.saveBlock = { [weak self] (controller: TraderProfileViewController, profile: TraderProfile, risk: Double, size: Double) in
                 if let weakSelf = self {
 
+                    Flurry.logEvent(
+                        AnalyticsKeys.updateTradingStyle,
+                        withParameters: [ "style": profile.toRaw() ]
+                    )
+
                     switch profile {
                     case .Aggressive:
                         AppConfig.aggressiveRiskPercentage = NSDecimalNumber(double: risk / 100)
@@ -406,11 +446,11 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                     }
 
                     weakSelf.updateDataSource(reload: true)
-                    weakSelf.navigationController.popViewControllerAnimated(true)
+                    weakSelf.navigationController?.popViewControllerAnimated(true)
                 }
             }
 
-            self.navigationController.pushViewController(traderController, animated: true)
+            self.navigationController?.pushViewController(traderController, animated: true)
         }
 
         if typeStr == "commission" {
@@ -447,15 +487,15 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
                     }
 
                     weakSelf.updateDataSource(reload: true)
-                    weakSelf.navigationController.popViewControllerAnimated(true)
+                    weakSelf.navigationController?.popViewControllerAnimated(true)
                 }
             }
 
-            self.navigationController.pushViewController(commissionController, animated: true)
+            self.navigationController?.pushViewController(commissionController, animated: true)
         }
     }
 
-    func tableView(tableView: UITableView!, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if let height = dataSource[indexPath.section].rows[indexPath.row].height {
             return height
         } else {
@@ -463,11 +503,11 @@ class SettingsViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
 
-    func tableView(tableView: UITableView!, titleForHeaderInSection section: Int) -> String! {
+    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return dataSource[section].title
     }
 
-    func tableView(tableView: UITableView!, titleForFooterInSection section: Int) -> String! {
+    override func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         return dataSource[section].footer
     }
 
