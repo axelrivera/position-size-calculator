@@ -30,7 +30,11 @@ class SettingsViewController: UITableViewController {
 
     var dataSource: [TableSection] = []
 
-    var completionBlock: (() -> Void)?
+    var initialProfitStep: Double = 0.0
+    var initialEnableCommissions: Bool = false
+    var commissionDirty: Bool = false
+
+    var completionBlock: ((reload: Bool) -> Void)?
 
     override func loadView() {
         self.tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
@@ -43,6 +47,9 @@ class SettingsViewController: UITableViewController {
         super.viewDidLoad()
 
         self.title = "Settings"
+
+        initialProfitStep = AppConfig.profitLossRMultiple
+        initialEnableCommissions = AppConfig.enableCommisions
 
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .Done,
@@ -72,14 +79,15 @@ class SettingsViewController: UITableViewController {
     // MARK: - Selector Methods
 
     func doneAction(sender: AnyObject!) {
-        if let stepper = profitStepper {
-            if AppConfig.profitLossRMultiple != stepper.value {
-                Flurry.logEvent(AnalyticsKeys.updateRMultiple)
-            }
+        if AppConfig.profitLossRMultiple != initialProfitStep {
+            Flurry.logEvent(AnalyticsKeys.updateRMultiple)
         }
 
         if let block = completionBlock {
-            block()
+            let enableCommissionsChanged = AppConfig.enableCommisions != initialEnableCommissions
+            let reload = enableCommissionsChanged || commissionDirty
+
+            block(reload: reload)
         } else {
             self.navigationController?.dismissViewControllerAnimated(true, completion: nil)
         }
@@ -484,6 +492,8 @@ class SettingsViewController: UITableViewController {
 
             commissionController.saveBlock = { [weak self] (controller: CommissionViewController, commissionType: CommissionType, price: NSDecimalNumber) in
                 if let weakSelf = self {
+                    weakSelf.commissionDirty = true
+
                     if commissionType == CommissionType.Entry {
                         AppConfig.entryCommission = price
                     } else if commissionType == CommissionType.Exit {

@@ -88,7 +88,7 @@ class Position {
                 return false
             }
 
-            println("total investment: \(investment)")
+            //println("total investment: \(investment)")
 
             return investment.isLessThanOrEqualToDecimalNumber(positionSize)
         }
@@ -262,7 +262,8 @@ class Position {
             raiseOnDivideByZero: true)
 
         let shares = amount.decimalNumberByDividingBy(risk, withBehavior: handler)
-        println("shares: \(shares)")
+
+        //println("shares: \(shares)")
 
         return shares
     }
@@ -299,7 +300,7 @@ class Position {
         let netInvestment = positionSize.decimalNumberBySubtracting(AppConfig.totalCommissions)
         let shares = netInvestment.decimalNumberByDividingBy(entryPrice, withBehavior: handler)
         
-        println("allowed shares: \(shares)")
+        //println("allowed shares: \(shares)")
 
         return shares
     }
@@ -322,8 +323,8 @@ class Position {
 
         let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
 
-        println("total investment: \(investment)")
-        println("total commissions: \(AppConfig.totalCommissions)")
+        //println("total investment: \(investment)")
+        //println("total commissions: \(AppConfig.totalCommissions)")
 
         return investment.decimalNumberByAdding(AppConfig.totalCommissions)
     }
@@ -346,8 +347,8 @@ class Position {
 
         let investment = shares.decimalNumberByMultiplyingBy(entryPrice)
 
-        println("total investment: \(investment)")
-        println("total commissions: \(AppConfig.totalCommissions)")
+        //println("total investment: \(investment)")
+        //println("total commissions: \(AppConfig.totalCommissions)")
 
         return investment.decimalNumberByAdding(AppConfig.totalCommissions)
      }

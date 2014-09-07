@@ -220,7 +220,7 @@ class ProfitViewController: UITableViewController {
                 totalTitle = "Expected Profit"
             }
 
-            println("total per share: \(totalPerShare)")
+            //println("total per share: \(totalPerShare)")
 
             riskStr = risk.currencyString()
             perShareStr = "\(perShare.currencyString()) (\(profitPercent.percentString()))"

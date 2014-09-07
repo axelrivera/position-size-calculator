@@ -152,8 +152,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
     // MARK: - Public Methods
 
     func updatePositionValues() {
-        println("commissions enabled: \(AppConfig.enableCommisions)")
-        println("entry commission: \(AppConfig.entryCommission), exit commission: \(AppConfig.exitCommission)")
+        //println("commissions enabled: \(AppConfig.enableCommisions)")
+        //println("entry commission: \(AppConfig.entryCommission), exit commission: \(AppConfig.exitCommission)")
 
         accountSizeButton.setTitle(position.accountSizeString())
 
@@ -211,16 +211,19 @@ class MainViewController: UIViewController, ActionViewDelegate {
     func settingsAction(sender: AnyObject!) {
         Flurry.logEvent(AnalyticsKeys.selectSettings)
 
-        let settingsController = SettingsViewController()
+        var settingsController = SettingsViewController()
 
-        settingsController.completionBlock = { [weak self] in
-            if let weakSelf = self {
-                weakSelf.updatePositionValues()
+        settingsController.completionBlock = { [weak self] (reload: Bool) in
+            if let weakSelf = self {                
+                if reload {
+                    weakSelf.updatePositionValues()
+                }
+
                 weakSelf.dismissViewControllerAnimated(true, completion: nil)
             }
         };
 
-        let navController = UINavigationController(rootViewController: settingsController)
+        var navController = UINavigationController(rootViewController: settingsController)
 
         Flurry.logAllPageViewsForTarget(navController)
 
