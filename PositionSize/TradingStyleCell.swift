@@ -53,7 +53,7 @@ class TradingStyleCell: UITableViewCell {
         riskTitleLabel.highlightedTextColor = UIColor.whiteColor()
         riskTitleLabel.textAlignment = .Left
 
-        riskTitleLabel.text = "Risk Percentage"
+        riskTitleLabel.text = "Risk Percent"
 
         riskTitleLabel.autoSetDimension(.Width, toSize: 160.0)
 

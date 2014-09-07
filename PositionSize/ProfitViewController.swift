@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ProfitViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ProfitViewController: UITableViewController {
 
     struct Config {
         static let CellIdentifier = "Cell"
@@ -17,7 +17,6 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     }
 
     var segmentedControl: UISegmentedControl!
-    var tableView: UITableView!
 
     var position: Position!
     var dataSource: [TableRow] = []
@@ -33,20 +32,14 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
     }
 
     override func loadView() {
-        self.view = UIView(frame: UIScreen.mainScreen().bounds)
-        self.view.backgroundColor = UIColor.whiteColor()
-
         self.tableView = UITableView(frame: UIScreen.mainScreen().bounds, style: .Grouped)
         self.tableView.dataSource = self
         self.tableView.delegate = self
-
-        self.view.addSubview(self.tableView)
+        self.tableView.backgroundColor = Color.ultraLightPurple
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        self.automaticallyAdjustsScrollViewInsets = false
 
         segmentedControl = UISegmentedControl(items: [ "Profit", "Loss" ])
         segmentedControl.setWidth(80.0, forSegmentAtIndex: 0)
@@ -61,8 +54,6 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             barButtonSystemItem: .Done,
             target: self,
             action: "doneAction:")
-
-        tableView.backgroundColor = Color.highlight.colorWithAlphaComponent(0.1)
 
         var headerView = ProfitHeaderView(frame: CGRectMake(0.0, 0.0, self.view.bounds.size.width, ProfitHeaderView.defaultHeight))
 
@@ -86,11 +77,6 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
 
         self.tableView.tableHeaderView = headerView
 
-        // AutoLayout
-
-        self.tableView.autoPinToTopLayoutGuideOfViewController(self, withInset: 0.0)
-        self.tableView.autoPinEdgesToSuperviewEdgesWithInsets(UIEdgeInsetsZero, excludingEdge: .Top)
-
         // Default Values
 
         updateDataSource()
@@ -101,21 +87,9 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Selector Methods
+    // MARK: - Public Methods
 
-    func doneAction(sender: AnyObject!) {
-        if let controller = self.navigationController {
-            controller.dismissViewControllerAnimated(true, completion: nil)
-        }
-    }
-
-    func segmentedControlChanged(segmentedControl: UISegmentedControl) {
-        updateDataSource()
-    }
-
-    // MARK: - Private Methods
-
-    private func updateDataSource() {
+    func updateDataSource() {
         var dictionary: TableData
         var rows: [TableRow] = []
 
@@ -145,10 +119,23 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
             investment = NSDecimalNumber.zero()
         }
 
+        var breakevenOffset = NSDecimalNumber.zero()
+        if !breakevenPrice.isEqualToDecimalNumber(position.entryPrice) {
+            breakevenOffset = breakevenPrice.decimalNumberBySubtracting(position.entryPrice)
+        }
+
+        var breakevenDetailStr: NSString
+
+        if !breakevenOffset.isEqualToZero() {
+            breakevenDetailStr = "\(breakevenPrice.currencyString()) (\(breakevenOffset.currencyString()))"
+        } else {
+            breakevenDetailStr = breakevenPrice.currencyString()
+        }
+
         dictionary = [
             "type" : "breakeven",
             "text" : "Breakeven",
-            "detail" : breakevenPrice.currencyString(),
+            "detail" : breakevenDetailStr,
         ]
 
         rows.append(TableRow(data: dictionary))
@@ -195,6 +182,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
                     if !breakevenPrice.isEqualToZero() {
                         let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
                         profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
+                        profitPercent = profitPercent.decimalNumberByMultiplyingBy(NSDecimalNumber(integer: -1))
                     } else {
                         profitPercent = NSDecimalNumber.zero()
                     }
@@ -222,6 +210,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
                     if !perShare.isEqualToZero() {
                         let tmp = perShare.decimalNumberByDividingBy(breakevenPrice)
                         profitPercent = NSDecimalNumber.one().decimalNumberBySubtracting(tmp)
+                        profitPercent = profitPercent.decimalNumberByMultiplyingBy(NSDecimalNumber(integer: -1))
                     } else {
                         profitPercent = NSDecimalNumber.zero()
                     }
@@ -250,25 +239,37 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
                     "total" : totalStr,
                     "total_color" : totalColor
                 ]
-
+                
                 rows.append(TableRow(data: dictionary))
             }
         }
-
+        
         dataSource = rows
         tableView.reloadData()
     }
 
+    // MARK: - Selector Methods
+
+    func doneAction(sender: AnyObject!) {
+        if let controller = self.navigationController {
+            controller.dismissViewControllerAnimated(true, completion: nil)
+        }
+    }
+
+    func segmentedControlChanged(segmentedControl: UISegmentedControl) {
+        updateDataSource()
+    }
+
     // MARK: - Table view data source
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete method implementation.
         // Return the number of rows in the section.
 
         return dataSource.count
     }
 
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let dictionary = dataSource[indexPath.row].data
         let typeStr = dictionary["type"] as AnyObject! as String!
 
@@ -302,6 +303,8 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
 
                 cell.detailTextLabel?.textColor = UIColor.blackColor()
                 cell.detailTextLabel?.font = UIFont.systemFontOfSize(16.0)
+                cell.detailTextLabel?.minimumScaleFactor = 10.0 / 16.0
+                cell.detailTextLabel?.adjustsFontSizeToFitWidth = true
             }
 
             let textStr = dictionary["text"] as AnyObject! as String!
@@ -349,7 +352,7 @@ class ProfitViewController: UIViewController, UITableViewDataSource, UITableView
         return cell
     }
 
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return ProfitCell.defaultHeight
     }
 

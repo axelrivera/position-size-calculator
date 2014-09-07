@@ -16,6 +16,11 @@ class SettingsViewController: UITableViewController {
         static let CommissionIdentifier = "CommissionCell"
         static let CommissionSwitchIdentifier = "CommissionSwitchCell"
         static let ProfitIdentifier = "ProfitCell"
+
+        // TODO: Update the Section Index if you change the Data Source
+        static let commissionSectionIndex = 2
+        static let commissionEntryRowIndex = 1
+        static let commissionExitRowIndex = 2
     }
 
     var commissionSwitch: UISwitch!
@@ -89,9 +94,22 @@ class SettingsViewController: UITableViewController {
             Flurry.logEvent(AnalyticsKeys.disableCommissions)
         }
 
-        // TODO: Change Index if You Add a New Section
+        let indexPaths = [
+            NSIndexPath(forRow: Config.commissionEntryRowIndex, inSection: Config.commissionSectionIndex),
+            NSIndexPath(forRow: Config.commissionExitRowIndex, inSection: Config.commissionSectionIndex)
+        ]
+
         updateDataSource(reload: false)
-        self.tableView.reloadSections(NSIndexSet(index: 2), withRowAnimation: .Automatic)
+
+        self.tableView.beginUpdates()
+
+        if AppConfig.enableCommisions {
+            self.tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+        } else {
+            self.tableView.deleteRowsAtIndexPaths(indexPaths, withRowAnimation: .Automatic)
+        }
+
+        self.tableView.endUpdates()
     }
 
     func stepperChanged(stepper: UIStepper) {

@@ -53,7 +53,7 @@ class ActionView: UIView {
 
         self.addSubview(verticalLine)
 
-        // Risk Percentage
+        // Risk Percent
 
         riskTile = ActionTileView(frame: CGRectZero)
         riskTile.setTranslatesAutoresizingMaskIntoConstraints(false)
@@ -61,7 +61,7 @@ class ActionView: UIView {
         riskTile.tag = ActionViewButtonType.Risk.toRaw()
         riskTile.addTarget(self, action: "selectAction:", forControlEvents: .TouchUpInside)
 
-        riskTile.footerLabel.text = "Risk Percentage"
+        riskTile.footerLabel.text = "Risk Percent"
 
         self.addSubview(riskTile)
 

@@ -116,7 +116,11 @@ class SummaryView: UIView, UIScrollViewDelegate {
                 scrollView.contentSize = contentSize
                 errorPanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
             } else {
-                if status == .NotApproved {
+                if status == .Approved {
+                    scrollView.contentSize = CGSizeMake(contentSize.width * 2.0, contentSize.height)
+                    tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
+                    riskPanel.frame = CGRectMake(contentSize.width, 0.0, contentSize.width, contentSize.height)
+                } else if status == .NotApproved {
                     scrollView.contentSize = CGSizeMake(contentSize.width * 3.0, contentSize.height)
                     tradePanel.frame = CGRectMake(0.0, 0.0, contentSize.width, contentSize.height)
                     allowedTradePanel.frame = CGRectMake(contentSize.width, 0.0, contentSize.width, contentSize.height)
@@ -160,6 +164,27 @@ class SummaryView: UIView, UIScrollViewDelegate {
             errorPanel.backgroundColor = Color.red
 
             scrollView.addSubview(errorPanel)
+        } else if status == .Approved {
+            self.showResetButton(animated: false)
+            self.showProfitButton(animated: false)
+
+            pageControl.numberOfPages = 2
+
+            tradePanel.titleLabel.text = "APPROVED"
+            tradePanel.backgroundColor = Color.green
+
+            tradePanel.leftDetailLabel.text = "Shares"
+            tradePanel.rightDetailLabel.text = "Cost of Trade"
+
+            scrollView.addSubview(tradePanel)
+
+            riskPanel.titleLabel.text = "APPROVED RISK"
+            riskPanel.leftDetailLabel.text = "Percentage of Risk"
+            riskPanel.rightDetailLabel.text = "Total Approved Risk"
+
+            riskPanel.backgroundColor = Color.orange
+
+            scrollView.addSubview(riskPanel)
         } else if status == .NotApproved {
             self.showResetButton(animated: false)
             self.showProfitButton(animated: false)
@@ -192,21 +217,13 @@ class SummaryView: UIView, UIScrollViewDelegate {
         } else {
             pageControl.numberOfPages = 1
 
-            if status == .Approved {
-                self.showResetButton(animated: false)
-                self.showProfitButton(animated: false)
+            self.hideResetButton(animated: false)
+            self.hideProfitButton(animated: false)
 
-                tradePanel.titleLabel.text = "APPROVED"
-                tradePanel.backgroundColor = Color.green
-            } else {
-                self.hideResetButton(animated: false)
-                self.hideProfitButton(animated: false)
-
-                tradePanel.titleLabel.text = "RESULTS"
-                tradePanel.leftTextLabel.text = "0"
-                tradePanel.rightTextLabel.text = "$0.00"
-                tradePanel.backgroundColor = Color.lightGray
-            }
+            tradePanel.titleLabel.text = "RESULTS"
+            tradePanel.leftTextLabel.text = "0"
+            tradePanel.rightTextLabel.text = "$0.00"
+            tradePanel.backgroundColor = Color.lightGray
 
             tradePanel.leftDetailLabel.text = "Shares"
             tradePanel.rightDetailLabel.text = "Cost of Trade"
@@ -366,7 +383,11 @@ class SummaryView: UIView, UIScrollViewDelegate {
         if page == 0 {
             scrollView.backgroundColor = tradePanel.backgroundColor
         } else if page == 1 {
-            scrollView.backgroundColor = allowedTradePanel.backgroundColor
+            if status == .Approved {
+                scrollView.backgroundColor = riskPanel.backgroundColor
+            } else {
+                scrollView.backgroundColor = allowedTradePanel.backgroundColor
+            }
         } else if page == 2 {
             scrollView.backgroundColor = riskPanel.backgroundColor
         } else {

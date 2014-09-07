@@ -29,8 +29,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
         super.viewDidLoad()
 
         position = Position()
-        position.entryPrice = NSDecimalNumber(double: 25.0)
-        position.stopPrice = NSDecimalNumber(double: 24.0)
+        position.accountSize = AppConfig.accountSize
         position.updateValuesForTraderProfile(AppConfig.defaultTraderProfile)
 
         settingsButton = UIButton.buttonWithType(.System) as UIButton
@@ -185,6 +184,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
 
                         summaryView.setShares(position.numberOfSharesString())
                         summaryView.setTradeCost(position.totalInvestmentString())
+
+                        summaryView.setAllowedRiskPercent(position.allowedRiskPercentageString())
+                        summaryView.setAllowedRisk(position.allowedRiskString())
                     } else {
                         summaryView.setStatus(.NotApproved)
 
@@ -235,7 +237,9 @@ class MainViewController: UIViewController, ActionViewDelegate {
         priceController.saveBlock = { [weak self] (controller: BalanceViewController, price: NSDecimalNumber) in
             if let weakSelf = self {
                 Flurry.logEvent(AnalyticsKeys.updateAccountBalance)
-                
+
+                AppConfig.accountSize = price
+
                 weakSelf.position.accountSize = price
                 weakSelf.updatePositionValues()
 
@@ -301,7 +305,7 @@ class MainViewController: UIViewController, ActionViewDelegate {
     }
 
     func riskAction(sender: AnyObject!) {
-        var config = PercentConfig(header: "Risk Percentage", footer: nil)
+        var config = PercentConfig(header: "Risk Percent", footer: nil)
         config.minValue = 0.0
         config.maxValue = 10.0
         config.step = 0.25

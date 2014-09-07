@@ -21,7 +21,7 @@ struct AnalyticsKeys {
     static let resetTradingStyle = "Reset Trading Style"
     static let selectTradingStyle = "Select Trading Style"
     static let updateAccountBalance = "Update Account Balance"
-    static let updateRiskPercentage = "Update Risk Percentage"
+    static let updateRiskPercentage = "Update Risk Percent"
     static let updateMaximumPositionSize = "Update Maximum Position Size"
     static let updateEntryPrice = "Update Entry Price"
     static let updateStopLossPrice = "Update Stop Loss Price"
@@ -48,15 +48,18 @@ struct AppDefaults {
     static let traderProfile: TraderProfile = .Conservative
     static let enableCommissions: Bool = false
     static let aggressiveRiskPercentage: Double = 0.02
-    static let aggressivePositionSize: Double = 0.2
-    static let moderateRiskPercentage: Double = 0.015
-    static let moderatePositionSize: Double = 0.15
-    static let conservativeRiskPercentage: Double = 0.01
-    static let conservativePositionSize: Double = 0.1
+    static let aggressivePositionSize: Double = 0.25
+    static let moderateRiskPercentage: Double = 0.01
+    static let moderatePositionSize: Double = 0.25
+    static let conservativeRiskPercentage: Double = 0.005
+    static let conservativePositionSize: Double = 0.25
     static let profitLossRMultiple: Double = 10
 }
 
 struct UserKeys {
+    static let accountSize = "PSUserKeysAccountSize"
+    static let entryPrice = "PSUserKeysEntryPrice"
+    static let stopPrice = "PSUserKeysStopPrice"
     static let traderProfile = "PSUserKeysTraderProfile"
     static let enableCommissions = "PSUserKeysEnableCommissions"
     static let entryCommission = "PSUserKeysEntryCommission"
@@ -94,6 +97,27 @@ class AppConfig {
     }
 
     // MARK: - Standard User Defaults
+
+    class var accountSize: NSDecimalNumber! {
+        get {
+            var number: NSDecimalNumber!
+
+            if let tmp = userDefaults.objectForKey(UserKeys.accountSize) as NSNumber! {
+                number = NSDecimalNumber(double: tmp.doubleValue)
+                if number.isLessThanDecimalNumber(NSDecimalNumber.zero()) {
+                    number = NSDecimalNumber.zero()
+                }
+            } else {
+                number = NSDecimalNumber.zero()
+            }
+
+            return number
+        }
+
+        set (newValue) {
+            setUserDefaultValue(newValue as NSNumber!, forKey: UserKeys.accountSize)
+        }
+    }
 
     class var defaultTraderProfile: TraderProfile {
         get {

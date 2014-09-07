@@ -28,6 +28,7 @@ class TraderProfileViewController: UITableViewController {
 
     struct Config {
         static let CellIdentifier = "Cell"
+        static let SwitchIdentifier = "SwitchCell"
         static let ResetIdentifier = "ResetCell"
         static let riskTag = 100
         static let sizeTag = 200
@@ -38,6 +39,8 @@ class TraderProfileViewController: UITableViewController {
 
     weak var sizeStepper: UIStepper?
     weak var sizeLabel: UILabel?
+
+    var defaultSwitch: UISwitch!
 
     var properties: TraderProfileProperties!
 
@@ -74,6 +77,15 @@ class TraderProfileViewController: UITableViewController {
             barButtonSystemItem: .Save,
             target: self,
             action: "saveAction:")
+
+        defaultSwitch = UISwitch(frame: CGRectZero)
+        defaultSwitch.onTintColor = Color.highlight
+        defaultSwitch.tintColor = Color.highlight
+
+        defaultSwitch.on = AppConfig.defaultTraderProfile == properties.profile
+        defaultSwitch.enabled = !(AppConfig.defaultTraderProfile == properties.profile)
+
+        defaultSwitch.addTarget(self, action: "switchValueChanged:", forControlEvents: .ValueChanged)
     }
 
     override func didReceiveMemoryWarning() {
@@ -94,7 +106,7 @@ class TraderProfileViewController: UITableViewController {
             risk = stepper.value
 
             if let label = riskLabel {
-                label.text = NSDecimalNumber(double: risk / 100).doublePercentString()
+                label.text = NSDecimalNumber(double: risk / 100).percentString()
             }
         } else {
             size = stepper.value
@@ -104,11 +116,20 @@ class TraderProfileViewController: UITableViewController {
             }
         }
     }
+
+    func switchValueChanged(mySwitch: UISwitch) {
+        if mySwitch.on {
+            AppConfig.defaultTraderProfile = properties.profile
+
+            defaultSwitch.on = AppConfig.defaultTraderProfile == properties.profile
+            defaultSwitch.enabled = !(AppConfig.defaultTraderProfile == properties.profile)
+        }
+    }
     
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 2
+        return 3
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -118,6 +139,8 @@ class TraderProfileViewController: UITableViewController {
             rows = 2
         } else if section == 1 {
             rows = 1
+        } else if section == 2 {
+            rows = 1
         }
 
         return rows
@@ -125,13 +148,29 @@ class TraderProfileViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         if indexPath.section == 1 {
+            var cell = tableView.dequeueReusableCellWithIdentifier(Config.SwitchIdentifier) as UITableViewCell!
+            if cell == nil {
+                cell = UITableViewCell(style:.Default, reuseIdentifier: Config.SwitchIdentifier)
+                cell.textLabel?.font = UIFont.systemFontOfSize(16.0)
+                cell.accessoryView = defaultSwitch
+            }
+
+            cell.textLabel?.text = "Set as Default"
+
+            cell.selectionStyle = .None
+
+            cell.setNeedsUpdateConstraints()
+
+            return cell
+        }
+
+        if indexPath.section == 2 {
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.ResetIdentifier) as ButtonCell!
             if cell == nil {
                 cell = ButtonCell(reuseIdentifier: Config.ResetIdentifier)
-                cell.titleLabel.textColor = Color.red
             }
 
-            cell.titleLabel.text = "Reset to Default Values"
+            cell.titleLabel.text = "Use Recommended Values"
             cell.setNeedsUpdateConstraints()
 
             return cell
@@ -143,14 +182,14 @@ class TraderProfileViewController: UITableViewController {
         }
 
         if indexPath.row == 0 {
-            cell.titleLabel.text = "Risk Percentage"
+            cell.titleLabel.text = "Risk Percent"
             cell.stepper.minimumValue = 0.0
             cell.stepper.maximumValue = 10.0
             cell.stepper.stepValue = 0.25
             cell.stepper.value = risk
             cell.stepper.tag = Config.riskTag
 
-            cell.supportLabel.text = NSDecimalNumber(double: risk / 100.0).doublePercentString()
+            cell.supportLabel.text = NSDecimalNumber(double: risk / 100.0).percentString()
 
             riskStepper = cell.stepper
             riskLabel = cell.supportLabel
@@ -180,7 +219,7 @@ class TraderProfileViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
 
-        if indexPath.section == 1 {
+        if indexPath.section == 2 {
             Flurry.logEvent(
                 AnalyticsKeys.resetTradingStyle,
                 withParameters: [ "style": properties.profile.toRaw() ]
@@ -206,6 +245,14 @@ class TraderProfileViewController: UITableViewController {
         }
 
         return height
+    }
+
+    override func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        var title: String?
+        if section == 1 {
+            title = "This will remember the Risk Percent and Maximum Position Size values of the current trading style when you exit the app."
+        }
+        return title
     }
 
 }
