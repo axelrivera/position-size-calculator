@@ -315,6 +315,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.percent = position.riskPercentage.doubleValue * 100.0
         config.showDecimalValues = true
 
+        config.footer = "How much risk can you tolerate as a percentage of your account balance? Common values used by professional traders are 0.5%, 1% and 2%."
+
         let percentController = PercentViewController(config: config)
 
         percentController.saveBlock = { [weak self] (controller: PercentViewController, percent: Double) in
@@ -344,6 +346,8 @@ class MainViewController: UIViewController, ActionViewDelegate {
         config.step = 1.0
         config.percent = position.maxPositionSize.doubleValue * 100.0
         config.showDecimalValues = false
+
+        config.footer = "Limiting the maximum position size on any given trade ensures diversification and limits risk. Most professional traders ensure no single position exceeds 25% of their account balance. Large accounts should use 20% or even 15%."
 
         let percentController = PercentViewController(config: config)
 

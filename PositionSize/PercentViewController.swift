@@ -100,18 +100,6 @@ class PercentViewController: UIViewController {
 
         self.view.addSubview(resetButton)
 
-//        footerLabel = UILabel(frame: CGRectZero)
-//        footerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
-//        footerLabel.textColor = Color.text
-//        footerLabel.backgroundColor = UIColor.clearColor()
-//        footerLabel.font = UIFont.systemFontOfSize(12.0)
-//        footerLabel.textAlignment = .Center
-//        footerLabel.numberOfLines = 2;
-//
-//        footerLabel.text = percent.headerString
-//
-//        self.view.addSubview(footerLabel)
-
         cancelButton = UIButton.roundedButton(color: Color.gray)
         cancelButton.setTranslatesAutoresizingMaskIntoConstraints(false)
         cancelButton.setTitle("Cancel", forState: .Normal)
@@ -131,6 +119,18 @@ class PercentViewController: UIViewController {
         saveButton.autoSetDimension(.Height, toSize: 37.0)
         
         self.view.addSubview(saveButton)
+
+        footerLabel = UILabel(frame: CGRectZero)
+        footerLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        footerLabel.textColor = Color.text
+        footerLabel.backgroundColor = UIColor.clearColor()
+        footerLabel.font = UIFont.systemFontOfSize(12.0)
+        footerLabel.textAlignment = .Center
+        footerLabel.numberOfLines = 0;
+
+        footerLabel.text = config.footer
+
+        self.view.addSubview(footerLabel)
 
         // AutoLayout
 
@@ -156,6 +156,10 @@ class PercentViewController: UIViewController {
         saveButton.autoMatchDimension(.Width, toDimension: .Width, ofView: self.view, withMultiplier: 0.42)
         saveButton.autoPinEdge(.Top, toEdge: .Top, ofView: cancelButton)
         saveButton.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
+
+        footerLabel.autoPinEdge(.Top, toEdge: .Bottom, ofView: cancelButton, withOffset: 20.0)
+        footerLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
+        footerLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         // Default Values
 

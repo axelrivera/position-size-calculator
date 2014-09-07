@@ -129,25 +129,15 @@ class TraderProfileViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 3
+        return 4
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var rows  = 0
-
-        if section == 0 {
-            rows = 2
-        } else if section == 1 {
-            rows = 1
-        } else if section == 2 {
-            rows = 1
-        }
-
-        return rows
+        return 1
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if indexPath.section == 1 {
+        if indexPath.section == 2 {
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.SwitchIdentifier) as UITableViewCell!
             if cell == nil {
                 cell = UITableViewCell(style:.Default, reuseIdentifier: Config.SwitchIdentifier)
@@ -156,7 +146,6 @@ class TraderProfileViewController: UITableViewController {
             }
 
             cell.textLabel?.text = "Set as Default"
-
             cell.selectionStyle = .None
 
             cell.setNeedsUpdateConstraints()
@@ -164,7 +153,7 @@ class TraderProfileViewController: UITableViewController {
             return cell
         }
 
-        if indexPath.section == 2 {
+        if indexPath.section == 3 {
             var cell = tableView.dequeueReusableCellWithIdentifier(Config.ResetIdentifier) as ButtonCell!
             if cell == nil {
                 cell = ButtonCell(reuseIdentifier: Config.ResetIdentifier)
@@ -181,7 +170,7 @@ class TraderProfileViewController: UITableViewController {
             cell = StepperCell(reuseIdentifier: Config.CellIdentifier)
         }
 
-        if indexPath.row == 0 {
+        if indexPath.section == 0 {
             cell.titleLabel.text = "Risk Percent"
             cell.stepper.minimumValue = 0.0
             cell.stepper.maximumValue = 10.0
@@ -219,7 +208,7 @@ class TraderProfileViewController: UITableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
 
-        if indexPath.section == 2 {
+        if indexPath.section == 3 {
             Flurry.logEvent(
                 AnalyticsKeys.resetTradingStyle,
                 withParameters: [ "style": properties.profile.toRaw() ]
@@ -240,7 +229,7 @@ class TraderProfileViewController: UITableViewController {
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         var height: CGFloat = 44.0
 
-        if indexPath.section == 0 {
+        if indexPath.section == 0 || indexPath.section == 1 {
             height = StepperCell.defaultHeight
         }
 
@@ -249,7 +238,11 @@ class TraderProfileViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         var title: String?
-        if section == 1 {
+        if section == 0 {
+            title = "How much risk can you tolerate as a percentage of your account balance? Common values used by professional traders are 0.5%, 1% and 2%."
+        } else if section == 1 {
+            title = "Limiting the maximum position size on any given trade ensures diversification and limits risk. Most professional traders ensure no single position exceeds 25% of their account balance. Large accounts should use 20% or even 15%."
+        } else if section == 2 {
             title = "This will remember the Risk Percent and Maximum Position Size values of the current trading style when you exit the app."
         }
         return title

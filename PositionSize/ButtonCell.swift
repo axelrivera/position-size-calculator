@@ -37,12 +37,13 @@ class ButtonCell: UITableViewCell {
         titleLabel.backgroundColor = UIColor.clearColor()
 
         self.contentView.addSubview(titleLabel)
+
+        titleLabel.autoAlignAxisToSuperviewAxis(.Horizontal)
     }
 
     override func updateConstraints() {
         titleLabel.autoPinEdgeToSuperviewEdge(.Left, withInset: 15.0)
         titleLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
-        titleLabel.autoAlignAxisToSuperviewAxis(.Horizontal)
         super.updateConstraints()
     }
 
