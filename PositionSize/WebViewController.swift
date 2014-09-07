@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WebViewController: UIViewController {
+class WebViewController: UIViewController, UIWebViewDelegate {
 
     var webView: UIWebView!
     var urlString: String = "http://localhost"
@@ -28,6 +28,7 @@ class WebViewController: UIViewController {
 
         webView = UIWebView(frame: CGRectZero)
         webView.setTranslatesAutoresizingMaskIntoConstraints(false)
+        webView.delegate = self
 
         self.view.addSubview(webView)
     }
@@ -49,6 +50,16 @@ class WebViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+
+    // MARK: - UIWebViewDelegate Methods
+
+    func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if navigationType == .LinkClicked && UIApplication.sharedApplication().canOpenURL(request.URL) {
+            UIApplication.sharedApplication().openURL(request.URL)
+            return false
+        }
+        return true
     }
 
 }

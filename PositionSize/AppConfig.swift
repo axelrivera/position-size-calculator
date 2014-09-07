@@ -76,7 +76,7 @@ struct UserKeys {
 // TODO: Missing App Store URL
 
 struct URLStrings {
-    static let guide = "http://chartingninja.com/trade_size_guide/"
+    static let guide = "http://chartingninja.com/app_guide/"
     static let appStore = "http://apple.com"
 }
 
