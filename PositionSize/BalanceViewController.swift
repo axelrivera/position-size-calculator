@@ -13,7 +13,6 @@ struct BalanceConfig {
     var defaultPrice: NSDecimalNumber!
 
     static let maxDigits = 12
-    static let currencyScale = -2
 
     init(header: String!) {
         self.header = header
@@ -74,7 +73,7 @@ class BalanceViewController: UIViewController, UITextFieldDelegate {
         textField.textAlignment = .Center
         textField.textColor = Color.header
         textField.placeholder = NSDecimalNumber.zero().currencyString()
-        textField.keyboardType = .NumberPad
+        textField.keyboardType = UIKeyboardType.NumberPad
         textField.backgroundColor = UIColor.clearColor()
         textField.textColor = Color.text
         textField.contentVerticalAlignment = .Center
@@ -202,8 +201,8 @@ class BalanceViewController: UIViewController, UITextFieldDelegate {
 
     func textFieldDidBeginEditing(textField: UITextField!) {
         if price.isGreaterThanDecimalNumber(NSDecimalNumber.zero()) {
-            let power = abs(PriceConfig.currencyScale)
-            let digitsNumber: NSDecimalNumber = price.decimalNumberByMultiplyingByPowerOf10(Int16(power))
+            let multiplier = NSDecimalNumber(double: 100)
+            let digitsNumber: NSDecimalNumber = price.decimalNumberByMultiplyingBy(multiplier)
             digits = digitsNumber.stringValue
         }
     }
@@ -228,9 +227,11 @@ class BalanceViewController: UIViewController, UITextFieldDelegate {
         }
 
         var number = NSDecimalNumber.zero()
+
         if digits != "" {
             let decimal = NSDecimalNumber(string: digits)
-            number = decimal.decimalNumberByMultiplyingByPowerOf10(Int16(BalanceConfig.currencyScale))
+            let multiplier = NSDecimalNumber(double: 0.01)
+            number = decimal.decimalNumberByMultiplyingBy(multiplier)
         }
 
         price = number

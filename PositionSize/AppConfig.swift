@@ -74,7 +74,7 @@ struct UserKeys {
 }
 
 struct URLStrings {
-    static let guide = "http://chartingninja.com/app_guide/"
+    static let guide = "http://chartingninja.com/apps/trade_size/guide"
 }
 
 class AppConfig {
