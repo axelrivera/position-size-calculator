@@ -115,12 +115,12 @@ class ProfitView: UIView {
         shareTitleLabel.autoPinEdge(.Left, toEdge: .Right, ofView: decorationLabel, withOffset: 10.0)
 
         shareLabel.autoPinEdgeToSuperviewEdge(.Top, withInset: 10.0)
-        shareLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 10.0)
+        shareLabel.autoPinEdgeToSuperviewEdge(.Right, withInset: 15.0)
 
         totalTitleLabel.autoAlignAxis(.Horizontal, toSameAxisOfView: totalLabel)
         totalTitleLabel.autoPinEdge(.Left, toEdge: .Left, ofView: shareTitleLabel)
 
-        totalLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 10.0)
+        totalLabel.autoPinEdgeToSuperviewEdge(.Bottom, withInset: 15.0)
         totalLabel.autoPinEdge(.Right, toEdge: .Right, ofView: shareLabel)
 
         super.updateConstraints()
